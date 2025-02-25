@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Operations</title>
+    <title>View Campaign</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
@@ -20,13 +20,19 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 400px;
             text-align: center;
         }
         h2 {
             margin-bottom: 20px;
         }
-        .button {
+        .campaign-details {
+            text-align: left;
+        }
+        .campaign-details p {
+            margin: 5px 0;
+        }
+        .back-button {
             margin-top: 20px;
             padding: 10px;
             background-color: #007bff;
@@ -37,16 +43,28 @@
             text-decoration: none;
             display: inline-block;
         }
-        .button:hover {
+        .back-button:hover {
             background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Master Operations</h2>
-        <a href="{{ url_for('campaigns.list_campaigns') }}" class="button">Manage Campaigns</a>
-        <a href="{{ url_for('auth.logout') }}" class="button">Logout</a>
+        <h2>View Campaign</h2>
+        <div class="campaign-details">
+            <p><strong>Name:</strong> {{ campaign.name }}</p>
+            <p><strong>Master:</strong> {{ campaign.master_id }}</p>
+            <p><strong>Public:</strong> {{ 'Yes' if campaign.is_public else 'No' }}</p>
+            {% if not campaign.is_public %}
+            <p><strong>Allowed Players:</strong></p>
+            <ul>
+                {% for player in allowed_players %}
+                <li>{{ player.username }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
     </div>
 </body>
 </html>

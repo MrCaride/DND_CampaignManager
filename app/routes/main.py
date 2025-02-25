@@ -10,9 +10,7 @@ def index():
 @main.route('/operations')
 @login_required
 def operations():
-    if current_user.role == 'player':
-        return render_template('operations_player.html')
-    elif current_user.role == 'master':
+    if current_user.role == 'master':
         return render_template('operations_master.html')
     else:
-        return render_template('index.html')
+        return render_template('operations_player.html')

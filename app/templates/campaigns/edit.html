@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Campaign</title>
+    <title>Edit Campaign</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
@@ -33,7 +33,7 @@
         label {
             margin-bottom: 5px;
         }
-        input[type="text"], input[type="checkbox"] {
+        input[type="text"], input[type="checkbox"], select {
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -68,13 +68,19 @@
 </head>
 <body>
     <div class="container">
-        <h2>Create Campaign</h2>
-        <form method="POST" action="{{ url_for('campaigns.create_campaign') }}">
+        <h2>Edit Campaign</h2>
+        <form method="POST" action="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}">
             <label for="name">Campaign Name:</label>
-            <input type="text" id="name" name="name" required>
+            <input type="text" id="name" name="name" value="{{ campaign.name }}" required>
             <label for="is_public">Public:</label>
-            <input type="checkbox" id="is_public" name="is_public">
-            <button type="submit">Create</button>
+            <input type="checkbox" id="is_public" name="is_public" {% if campaign.is_public %}checked{% endif %}>
+            <label for="allowed_players">Allowed Players:</label>
+            <select id="allowed_players" name="allowed_players" multiple>
+                {% for player in players %}
+                <option value="{{ player.id }}" {% if player.id in campaign.allowed_players %}selected{% endif %}>{{ player.username }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Update</button>
         </form>
         <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
     </div>

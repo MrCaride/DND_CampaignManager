@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaigns</title>
+    <title>Manage Campaigns</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         .back-button {
@@ -18,17 +18,65 @@
         .back-button:hover {
             background-color: #0056b3;
         }
+        .create-button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .create-button:hover {
+            background-color: #218838;
+        }
+        .edit-button, .delete-button, .view-button {
+            margin: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .edit-button {
+            background-color: #ffc107;
+            color: #fff;
+        }
+        .edit-button:hover {
+            background-color: #e0a800;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .view-button {
+            background-color: #17a2b8;
+            color: #fff;
+        }
+        .view-button:hover {
+            background-color: #138496;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Campaigns</h2>
+        <h2>Manage Campaigns</h2>
         <ul>
             {% for campaign in campaigns %}
-            <li>{{ campaign.name }}</li>
+            <li>
+                {{ campaign.name }}
+                <button class="view-button" onclick="window.location.href='{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}'">View</button>
+                <button class="edit-button" onclick="window.location.href='{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}'">Edit</button>
+                <form method="POST" action="{{ url_for('campaigns.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+            </li>
             {% endfor %}
         </ul>
-        <button class="back-button" onclick="window.history.back()">Back</button>
+        <button class="create-button" onclick="window.location.href='{{ url_for('campaigns.create_campaign') }}'">Create Campaign</button>
+        <button class="back-button" onclick="window.location.href='{{ url_for('main.operations') }}'">Back</button>
     </div>
 </body>
 </html>

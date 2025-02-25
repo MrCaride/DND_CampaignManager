@@ -42,7 +42,7 @@
         a:hover {
             text-decoration: underline;
         }
-        .back-button {
+        .button {
             margin-top: 20px;
             padding: 10px;
             background-color: #007bff;
@@ -50,8 +50,10 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
-        .back-button:hover {
+        .button:hover {
             background-color: #0056b3;
         }
     </style>
@@ -60,11 +62,11 @@
     <div class="container">
         <h2>Player Operations</h2>
         <ul>
-            <li><a href="{{ url_for('characters.list_characters') }}">Manage Characters</a></li>
-            <li><a href="{{ url_for('campaigns.list_campaigns') }}">View Campaigns</a></li>
-            <li><a href="{{ url_for('combats.list_combats') }}">Participate in Combats</a></li>
+            <li><a href="{{ url_for('characters.list_characters') }}" class="button">Manage Characters</a></li>
+            <li><a href="{{ url_for('campaigns.list_campaigns') }}" class="button">View Campaigns</a></li>
+            <li><a href="{{ url_for('combats.list_combats') }}" class="button">Participate in Combats</a></li>
         </ul>
-        <a href="{{ url_for('auth.login') }}" class="back-button">Back</a>
+        <a href="{{ url_for('auth.logout') }}" class="button">Log out</a>
     </div>
 </body>
 </html>
