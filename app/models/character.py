@@ -19,7 +19,7 @@ class Character(db.Model):
     armor_class = db.Column(db.Integer, nullable=False, default=10)
     initiative = db.Column(db.Integer, nullable=False, default=0)
     speed = db.Column(db.Integer, nullable=False, default=30)
-    # ...otros campos necesarios...
+    campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=True)  # Nueva propiedad
 
     def __init__(self, name, user_id, race, character_class):
         self.name = name
@@ -45,7 +45,8 @@ class Character(db.Model):
             'hit_points': self.hit_points,
             'armor_class': self.armor_class,
             'initiative': self.initiative,
-            'speed': self.speed
+            'speed': self.speed,
+            'campaign_id': self.campaign_id
         })
 
     @classmethod
@@ -69,7 +70,8 @@ class Character(db.Model):
                 hit_points=int(data.get(b'hit_points')),
                 armor_class=int(data.get(b'armor_class')),
                 initiative=int(data.get(b'initiative')),
-                speed=int(data.get(b'speed'))
+                speed=int(data.get(b'speed')),
+                campaign_id=int(data.get(b'campaign_id')) if data.get(b'campaign_id') else None
             )
         return None
 

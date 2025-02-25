@@ -25,7 +25,8 @@ with app.app_context():
 
     # Create generic campaigns
     campaign1 = Campaign(name='La comunidad del anillo', master_id=master.id, is_public=True)
-    campaign2 = Campaign(name='Las dos torres', master_id=master.id, is_public=False, allowed_players=[user1.id, user2.id])
+    campaign2 = Campaign(name='Las dos torres', master_id=master.id, is_public=False)
+    campaign2.allowed_players.extend([user1, user2])
 
     db.session.add(campaign1)
     db.session.add(campaign2)
