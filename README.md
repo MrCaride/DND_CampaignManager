@@ -1,3 +1,11 @@
+# To DO:
+
+-items
+-fix fight.html
+-fix character/list.html
+-add toasts
+
+
 # DnD Campaign Manager
 
 ## Descripción
