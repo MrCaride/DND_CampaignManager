@@ -37,9 +37,42 @@ def edit_character(character_id):
         character.name = request.form.get('name')
         character.race = request.form.get('race')
         character.character_class = request.form.get('character_class')
-        # ...actualizar otros campos necesarios...
+        character.level = request.form.get('level')
+        character.strength = request.form.get('strength')
+        character.dexterity = request.form.get('dexterity')
+        character.constitution = request.form.get('constitution')
+        character.intelligence = request.form.get('intelligence')
+        character.wisdom = request.form.get('wisdom')
+        character.charisma = request.form.get('charisma')
+        character.hit_points = request.form.get('hit_points')
+        character.armor_class = request.form.get('armor_class')
+        character.initiative = request.form.get('initiative')
+        character.speed = request.form.get('speed')
         db.session.commit()
         flash('Character updated successfully!', 'success')
         return redirect(url_for('characters.list_characters'))
     
     return render_template('characters/edit.html', character=character)
+
+@characters_bp.route('/delete/<int:character_id>', methods=['POST'])
+@login_required
+def delete_character(character_id):
+    character = Character.query.get_or_404(character_id)
+    if character.user_id != current_user.id:
+        flash('You do not have permission to delete this character.', 'danger')
+        return redirect(url_for('characters.list_characters'))
+    
+    db.session.delete(character)
+    db.session.commit()
+    flash('Character deleted successfully!', 'success')
+    return redirect(url_for('characters.list_characters'))
+
+@characters_bp.route('/view/<int:character_id>', methods=['GET'])
+@login_required
+def view_character(character_id):
+    character = Character.query.get_or_404(character_id)
+    if character.user_id != current_user.id:
+        flash('You do not have permission to view this character.', 'danger')
+        return redirect(url_for('characters.list_characters'))
+    
+    return render_template('characters/view.html', character=character)

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Character</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group input {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group-horizontal {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .form-group-horizontal .form-group {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group-horizontal .form-group:last-child {
+            margin-right: 0;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Character</h2>
+        <form method="POST" action="{{ url_for('characters.edit_character', character_id=character.id) }}">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ character.name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="race">Race:</label>
+                <input type="text" id="race" name="race" value="{{ character.race }}" required>
+            </div>
+            <div class="form-group">
+                <label for="character_class">Class:</label>
+                <input type="text" id="character_class" name="character_class" value="{{ character.character_class }}" required>
+            </div>
+            <div class="form-group">
+                <label for="level">Level:</label>
+                <input type="number" id="level" name="level" value="{{ character.level }}" required>
+            </div>
+            <div class="form-group-horizontal">
+                <div class="form-group">
+                    <label for="strength">Strength:</label>
+                    <input type="number" id="strength" name="strength" value="{{ character.strength }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="dexterity">Dexterity:</label>
+                    <input type="number" id="dexterity" name="dexterity" value="{{ character.dexterity }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="constitution">Constitution:</label>
+                    <input type="number" id="constitution" name="constitution" value="{{ character.constitution }}" required>
+                </div>
+            </div>
+            <div class="form-group-horizontal">
+                <div class="form-group">
+                    <label for="intelligence">Intelligence:</label>
+                    <input type="number" id="intelligence" name="intelligence" value="{{ character.intelligence }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="wisdom">Wisdom:</label>
+                    <input type="number" id="wisdom" name="wisdom" value="{{ character.wisdom }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="charisma">Charisma:</label>
+                    <input type="number" id="charisma" name="charisma" value="{{ character.charisma }}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="hit_points">Hit Points:</label>
+                <input type="number" id="hit_points" name="hit_points" value="{{ character.hit_points }}" required>
+            </div>
+            <div class="form-group">
+                <label for="armor_class">Armor Class:</label>
+                <input type="number" id="armor_class" name="armor_class" value="{{ character.armor_class }}" required>
+            </div>
+            <div class="form-group">
+                <label for="initiative">Initiative:</label>
+                <input type="number" id="initiative" name="initiative" value="{{ character.initiative }}" required>
+            </div>
+            <div class="form-group">
+                <label for="speed">Speed:</label>
+                <input type="number" id="speed" name="speed" value="{{ character.speed }}" required>
+            </div>
+            <button type="submit">Update</button>
+        </form>
+        <button class="back-button" onclick="window.history.back()">Back</button>
+    </div>
+</body>
+</html>

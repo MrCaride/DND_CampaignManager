@@ -6,9 +6,9 @@ class Combat(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     # ...otros campos necesarios...
 
-    def __init__(self, id, mission_id):
-        self.id = id
-        self.mission_id = mission_id
+    def __init__(self, name, user_id):
+        self.name = name
+        self.user_id = user_id
         self.participants = []
         self.turn_order = []
         self.active = False

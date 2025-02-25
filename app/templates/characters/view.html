@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Character</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .character-details {
+            text-align: left;
+        }
+        .character-details p {
+            margin: 5px 0;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>View Character</h2>
+        <div class="character-details">
+            <p><strong>Name:</strong> {{ character.name }}</p>
+            <p><strong>Race:</strong> {{ character.race }}</p>
+            <p><strong>Class:</strong> {{ character.character_class }}</p>
+            <p><strong>Level:</strong> {{ character.level }}</p>
+            <p><strong>Strength:</strong> {{ character.strength }}</p>
+            <p><strong>Dexterity:</strong> {{ character.dexterity }}</p>
+            <p><strong>Constitution:</strong> {{ character.constitution }}</p>
+            <p><strong>Intelligence:</strong> {{ character.intelligence }}</p>
+            <p><strong>Wisdom:</strong> {{ character.wisdom }}</p>
+            <p><strong>Charisma:</strong> {{ character.charisma }}</p>
+            <p><strong>Hit Points:</strong> {{ character.hit_points }}</p>
+            <p><strong>Armor Class:</strong> {{ character.armor_class }}</p>
+            <p><strong>Initiative:</strong> {{ character.initiative }}</p>
+            <p><strong>Speed:</strong> {{ character.speed }}</p>
+        </div>
+        <button class="back-button" onclick="window.history.back()">Back</button>
+    </div>
+</body>
+</html>
