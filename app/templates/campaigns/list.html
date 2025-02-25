@@ -85,6 +85,10 @@
         .campaign-item {
             margin-bottom: 20px;
         }
+        .button-container {
+            text-align: center;
+            margin-top: 40px; /* Aumentar el margen superior */
+        }
     </style>
 </head>
 <body>
@@ -117,10 +121,12 @@
             </li>
             {% endfor %}
         </ul>
-        {% if current_user.role == 'master' %}
-        <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>
-        {% endif %}
-        <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
+        <div class="button-container">
+            {% if current_user.role == 'master' %}
+            <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>
+            {% endif %}
+            <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
+        </div>
     </div>
 </body>
 </html>

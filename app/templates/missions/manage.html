@@ -85,6 +85,10 @@
         .delete-button:hover {
             background-color: #c82333;
         }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -99,7 +103,13 @@
                 <label for="description">Description</label>
                 <textarea id="description" name="description" required></textarea>
             </div>
-            <button type="submit" class="btn">Create Mission</button>
+            <div class="form-group">
+                <label for="reward">Reward</label>
+                <input type="text" id="reward" name="reward" required>
+            </div>
+            <div class="button-container">
+                <button type="submit" class="btn">Create Mission</button>
+            </div>
         </form>
         <h3>Existing Missions</h3>
         <ul>
@@ -108,6 +118,7 @@
                 <strong>{{ mission.name }}</strong>
                 <p>{{ mission.description }}</p>
                 <p>Votes: {{ mission.votes }}</p>
+                <p>Reward: {{ mission.reward }}</p>
                 <div class="button-group">
                     <a href="{{ url_for('missions.edit_mission', mission_id=mission.id) }}" class="btn edit-button">Edit</a>
                     <form method="POST" action="{{ url_for('missions.delete_mission', mission_id=mission.id) }}" style="display:inline;">
@@ -117,7 +128,9 @@
             </li>
             {% endfor %}
         </ul>
-        <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back</a>
+        <div class="button-container">
+            <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back</a>
+        </div>
     </div>
 </body>
 </html>
