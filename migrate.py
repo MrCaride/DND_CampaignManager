@@ -1,6 +1,9 @@
 import os
 from app import create_app, db
 from app.models.user import User
+from app.models.character import Character
+from app.models.campaign import Campaign
+from app.models.combat import Combat
 
 app = create_app()
 

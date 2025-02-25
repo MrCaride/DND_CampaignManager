@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.campaign import Campaign
 from app.models.mission import Mission
-from app import redis_client
+from app import db
 
 campaigns_bp = Blueprint('campaigns', __name__)
 
@@ -18,7 +18,8 @@ def create_campaign():
     if request.method == 'POST':
         name = request.form['name']
         new_campaign = Campaign(name=name, master_id=current_user.id)
-        redis_client.set(f'campaign:{new_campaign.id}', new_campaign)
+        db.session.add(new_campaign)
+        db.session.commit()
         flash('Campaign created successfully!', 'success')
         return redirect(url_for('campaigns.list_campaigns'))
     return render_template('campaigns/create.html')

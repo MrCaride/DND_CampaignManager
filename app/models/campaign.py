@@ -1,4 +1,11 @@
-class Campaign:
+from app import db
+
+class Campaign(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    master_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # ...otros campos necesarios...
+
     def __init__(self, id, name, master_id):
         self.id = id
         self.name = name

@@ -38,7 +38,3 @@ def edit_character(character_id):
         return redirect(url_for('characters.list_characters'))
     
     return render_template('characters/edit.html', character=character)
-
-@characters_bp.route('/')
-def characters_index():
-    return render_template('characters/index.html')

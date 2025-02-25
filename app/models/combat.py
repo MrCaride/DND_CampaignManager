@@ -1,4 +1,11 @@
-class Combat:
+from app import db
+
+class Combat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # ...otros campos necesarios...
+
     def __init__(self, id, mission_id):
         self.id = id
         self.mission_id = mission_id

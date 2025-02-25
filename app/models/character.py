@@ -1,7 +1,13 @@
 from flask import current_app
 from redis import Redis
+from app import db
 
-class Character:
+class Character(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # ...otros campos necesarios...
+
     def __init__(self, id, name, player_id):
         self.id = id
         self.name = name
