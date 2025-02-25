@@ -42,8 +42,8 @@ with app.app_context():
     db.session.commit()
 
     # Create missions
-    mission1 = Mission(name='Protect the Shire', description='Ensure the safety of the Shire.', campaign_id=campaign1.id)
-    mission2 = Mission(name='Defend Helm\'s Deep', description='Defend the fortress of Helm\'s Deep.', campaign_id=campaign2.id)
+    mission1 = Mission(name='Protect the Shire', description='Ensure the safety of the Shire.', campaign_id=campaign1.id, rewards='100 gold')
+    mission2 = Mission(name='Defend Helm\'s Deep', description='Defend the fortress of Helm\'s Deep.', campaign_id=campaign2.id, rewards='200 gold')
 
     db.session.add(mission1)
     db.session.add(mission2)
@@ -55,6 +55,9 @@ with app.app_context():
 
     db.session.add(combat1)
     db.session.add(combat2)
+    db.session.commit()
+
+
     db.session.commit()
 
     print("Database has been reset and populated with generic data.")

@@ -26,9 +26,58 @@ def manage_missions(campaign_id):
     missions = Mission.query.filter_by(campaign_id=campaign_id).all()
     return render_template('missions/manage.html', campaign=campaign, missions=missions)
 
+@missions_bp.route('/<int:mission_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_mission(mission_id):
+    mission = Mission.query.get_or_404(mission_id)
+    campaign = Campaign.query.get_or_404(mission.campaign_id)
+    if campaign.master_id != current_user.id:
+        flash('You do not have permission to edit this mission.', 'danger')
+        return redirect(url_for('campaigns.play_campaign', campaign_id=campaign.id))
+
+    if request.method == 'POST':
+        mission.name = request.form['name']
+        mission.description = request.form['description']
+        mission.rewards = request.form['rewards']
+        db.session.commit()
+        flash('Mission updated successfully!', 'success')
+        return redirect(url_for('missions.manage_missions', campaign_id=campaign.id))
+    
+    return render_template('missions/edit.html', mission=mission)
+
+@missions_bp.route('/<int:mission_id>/delete', methods=['POST'])
+@login_required
+def delete_mission(mission_id):
+    mission = Mission.query.get_or_404(mission_id)
+    campaign = Campaign.query.get_or_404(mission.campaign_id)
+    if campaign.master_id != current_user.id:
+        flash('You do not have permission to delete this mission.', 'danger')
+        return redirect(url_for('campaigns.play_campaign', campaign_id=campaign.id))
+
+    db.session.delete(mission)
+    db.session.commit()
+    flash('Mission deleted successfully!', 'success')
+    return redirect(url_for('missions.manage_missions', campaign_id=campaign.id))
+
 @missions_bp.route('/<int:campaign_id>/view', methods=['GET'])
 @login_required
 def view_missions(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
     missions = Mission.query.filter_by(campaign_id=campaign_id).all()
     return render_template('missions/view.html', campaign=campaign, missions=missions)
+
+@missions_bp.route('/vote/<int:mission_id>', methods=['POST'])
+@login_required
+def vote_mission(mission_id):
+    mission = Mission.query.get_or_404(mission_id)
+    mission.vote(current_user)
+    flash('Voted successfully!', 'success')
+    return redirect(url_for('missions.view_missions', campaign_id=mission.campaign_id))
+
+@missions_bp.route('/unvote/<int:mission_id>', methods=['POST'])
+@login_required
+def unvote_mission(mission_id):
+    mission = Mission.query.get_or_404(mission_id)
+    mission.unvote(current_user)
+    flash('Vote removed successfully!', 'success')
+    return redirect(url_for('missions.view_missions', campaign_id=mission.campaign_id))
