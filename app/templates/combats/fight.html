@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fight Combat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .combat-details {
+            margin-bottom: 20px;
+        }
+        .combat-details p {
+            margin: 5px 0;
+        }
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        .participant {
+            display: inline-block;
+            padding: 15px;
+            margin: 10px;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 180px;
+            cursor: move;
+        }
+        .participant strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #333;
+        }
+        .participant p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .participant label {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #666;
+        }
+        .participant input {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .add-participant-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .add-participant-btn:hover {
+            background-color: #218838;
+        }
+        .delete-btn {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        #participants {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+    <script>
+        function deleteParticipant(index) {
+            const participants = document.getElementById("participants");
+            participants.removeChild(participants.children[index]);
+            saveParticipants();
+        }
+
+        function addParticipant() {
+            const name = document.getElementById("new-participant-name").value;
+            const totalHP = document.getElementById("new-participant-total-hp").value;
+            const bonus = document.getElementById("new-participant-bonus").value;
+
+            if (totalHP <= 0) {
+                alert("Total HP must be greater than 0");
+                return;
+            }
+
+            const newParticipant = document.createElement("div");
+            newParticipant.className = "participant";
+            newParticipant.draggable = true;
+            newParticipant.ondragstart = drag;
+            newParticipant.innerHTML = `
+                <strong>${name}</strong>
+                <p>Total HP: ${totalHP}</p>
+                <label for="remaining-hp-${newParticipant.id}">Remaining HP:</label>
+                <input type="number" id="remaining-hp-${newParticipant.id}" value="${totalHP}" oninput="validateHP(this, ${totalHP})">
+                <label for="bonus-${newParticipant.id}">Bonus:</label>
+                <input type="text" id="bonus-${newParticipant.id}" value="${bonus}">
+                <button class="delete-btn" onclick="deleteParticipant(${document.getElementById("participants").children.length})">Delete</button>
+            `;
+            document.getElementById("participants").appendChild(newParticipant);
+            saveParticipants();
+        }
+
+        function validateHP(input, totalHP) {
+            if (parseInt(input.value) > totalHP) {
+                input.value = totalHP;
+            }
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            const targetElement = event.target.closest(".participant");
+            if (targetElement && targetElement !== draggedElement) {
+                const participants = document.getElementById("participants");
+                const draggedIndex = Array.from(participants.children).indexOf(draggedElement);
+                const targetIndex = Array.from(participants.children).indexOf(targetElement);
+                if (draggedIndex > targetIndex) {
+                    participants.insertBefore(draggedElement, targetElement);
+                } else {
+                    participants.insertBefore(draggedElement, targetElement.nextSibling);
+                }
+                saveParticipants();
+            }
+        }
+
+        function saveParticipants() {
+            const participants = document.getElementById("participants").children;
+            const participantsData = Array.from(participants).map(participant => {
+                return {
+                    name: participant.querySelector("strong").textContent,
+                    totalHP: participant.querySelector("input[type='number']").value,
+                    bonus: participant.querySelector("input[type='text']").value
+                };
+            });
+            fetch("{{ url_for('combats.save_participants', combat_id=combat.id) }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ participants: participantsData })
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Combat: {{ combat.name }}</h2>
+        <div class="combat-details">
+            <p>Status: {{ 'Active' if combat.active else 'Inactive' }}</p>
+            <p>Participants:</p>
+            <div id="participants" ondrop="drop(event)" ondragover="allowDrop(event)">
+                {% for participant in combat.participants_data %}
+                <div id="participant-{{ loop.index }}" class="participant" {% if current_user.role == 'master' %}draggable="true" ondragstart="drag(event)"{% endif %}>
+                    <strong>{{ participant.name }}</strong>
+                    <p>Total HP: {{ participant.totalHP }}</p>
+                    <label for="remaining-hp-{{ loop.index }}">Remaining HP:</label>
+                    <input type="number" id="remaining-hp-{{ loop.index }}" value="{{ participant.totalHP }}" oninput="validateHP(this, {{ participant.totalHP }})" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
+                    <label for="bonus-{{ loop.index }}">Bonus:</label>
+                    <input type="text" id="bonus-{{ loop.index }}" value="{{ participant.bonus }}" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
+                    {% if current_user.role == 'master' %}
+                    <button class="delete-btn" onclick="deleteParticipant({{ loop.index0 }})">Delete</button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if current_user.role == 'master' %}
+        <div class="form-group">
+            <label for="new-participant-name">Name:</label>
+            <input type="text" id="new-participant-name" placeholder="Enter participant name">
+        </div>
+        <div class="form-group">
+            <label for="new-participant-total-hp">Total HP:</label>
+            <input type="number" id="new-participant-total-hp" placeholder="Enter total HP">
+        </div>
+        <div class="form-group">
+            <label for="new-participant-bonus">Bonus:</label>
+            <input type="text" id="new-participant-bonus" placeholder="Enter bonus">
+        </div>
+        <button class="add-participant-btn" onclick="addParticipant()">Add Participant</button>
+        {% endif %}
+        <a href="{{ url_for('combats.manage_combats', campaign_id=campaign.id) }}" class="back-button">Back</a>
+    </div>
+</body>
+</html>

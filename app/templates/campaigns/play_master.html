@@ -27,6 +27,7 @@
             margin-bottom: 10px;
         }
         .btn {
+            display: inline-block;
             margin: 10px;
             padding: 10px 20px;
             background-color: #007bff;
@@ -35,11 +36,13 @@
             border-radius: 4px;
             cursor: pointer;
             text-decoration: none;
+            text-align: center;
         }
         .btn:hover {
             background-color: #0056b3;
         }
         .back-button {
+            display: inline-block;
             margin-top: 20px;
             padding: 10px;
             background-color: #6c757d;
@@ -48,9 +51,15 @@
             border-radius: 4px;
             cursor: pointer;
             text-decoration: none;
+            text-align: center;
         }
         .back-button:hover {
             background-color: #5a6268;
+        }
+        .btn-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
     </style>
 </head>
@@ -68,8 +77,10 @@
             </ul>
         </div>
         <div class="operations">
-            <a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="btn">Manage Missions</a>
-            <a href="{{ url_for('combats.manage_combats', campaign_id=campaign.id) }}" class="btn">Manage Combats</a>
+            <div class="btn-container">
+                <a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="btn">Manage Missions</a>
+                <a href="{{ url_for('combats.manage_combats', campaign_id=campaign.id) }}" class="btn">Manage Combats</a>
+            </div>
         </div>
         <a href="{{ url_for('campaigns.list_campaigns') }}" class="back-button">Back</a>
     </div>

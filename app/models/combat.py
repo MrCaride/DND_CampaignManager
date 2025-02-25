@@ -1,17 +1,21 @@
 from app import db
 
+combat_participants = db.Table('combat_participants',
+    db.Column('combat_id', db.Integer, db.ForeignKey('combat.id'), primary_key=True),
+    db.Column('character_id', db.Integer, db.ForeignKey('character.id'), primary_key=True)
+)
+
 class Combat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=False)
-    # ...otros campos necesarios...
+    participants = db.relationship('Character', secondary=combat_participants, backref='combats')
+    active = db.Column(db.Boolean, default=False)
+    participants_data = db.Column(db.JSON, nullable=True)  # Nuevo campo para guardar los datos de los participantes
 
     def __init__(self, name, campaign_id):
         self.name = name
         self.campaign_id = campaign_id
-        self.participants = []
-        self.turn_order = []
-        self.active = False
 
     def start_combat(self):
         self.active = True
@@ -23,7 +27,14 @@ class Combat(db.Model):
         self.turn_order.clear()
 
     def add_participant(self, character):
-        self.participants.append(character)
+        if character not in self.participants:
+            self.participants.append(character)
+            db.session.commit()
+
+    def remove_participant(self, character):
+        if character in self.participants:
+            self.participants.remove(character)
+            db.session.commit()
 
     def determine_turn_order(self):
         # Logic to determine turn order based on initiative

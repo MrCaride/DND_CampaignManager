@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Combats</title>
+    <title>View Combats</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         .container {
@@ -14,28 +14,20 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h2, h3 {
+        h2 {
             text-align: center;
             margin-bottom: 20px;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+        .combat-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
         .btn {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #007bff;
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -43,8 +35,29 @@
             text-decoration: none;
             text-align: center;
         }
-        .btn:hover {
+        .view-btn {
+            background-color: #007bff;
+        }
+        .view-btn:hover {
             background-color: #0056b3;
+        }
+        .join-btn {
+            background-color: #28a745;
+        }
+        .join-btn:hover {
+            background-color: #218838;
+        }
+        .leave-btn {
+            background-color: #dc3545;
+        }
+        .leave-btn:hover {
+            background-color: #c82333;
+        }
+        .fight-btn {
+            background-color: #ffc107;
+        }
+        .fight-btn:hover {
+            background-color: #e0a800;
         }
         .back-button {
             display: inline-block;
@@ -61,59 +74,33 @@
         .back-button:hover {
             background-color: #5a6268;
         }
-        .combat-item {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
         .button-group {
             display: flex;
             gap: 10px;
             margin-top: 10px;
         }
-        .edit-btn {
-            background-color: #ffc107;
-        }
-        .edit-btn:hover {
-            background-color: #e0a800;
-        }
-        .delete-btn {
-            background-color: #dc3545;
-        }
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
-        .fight-btn {
-            background-color: #28a745;
-        }
-        .fight-btn:hover {
-            background-color: #218838;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Manage Combats for {{ campaign.name }}</h2>
-        <form method="POST">
-            <div class="form-group">
-                <label for="name">Combat Name</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <button type="submit" class="btn">Create Combat</button>
-        </form>
-        <h3>Existing Combats</h3>
+        <h2>Combats for {{ campaign.name }}</h2>
         <ul>
             {% for combat in combats %}
             <li class="combat-item">
                 <strong>{{ combat.name }}</strong>
                 <div class="button-group">
-                    <a href="{{ url_for('combats.edit_combat', combat_id=combat.id) }}" class="btn edit-btn">Edit</a>
-                    <form method="POST" action="{{ url_for('combats.delete_combat', combat_id=combat.id) }}" style="display:inline;">
-                        <button type="submit" class="btn delete-btn">Delete</button>
+                    <a href="{{ url_for('combats.view_combat', combat_id=combat.id) }}" class="btn view-btn">View</a>
+                    {% set character_in_combat = current_user.characters | selectattr('id', 'in', combat.participants | map(attribute='id') | list) | list %}
+                    {% if character_in_combat %}
+                    <form method="POST" action="{{ url_for('combats.leave_combat', combat_id=combat.id) }}" style="display:inline;">
+                        <button type="submit" class="btn leave-btn">Leave</button>
                     </form>
                     <a href="{{ url_for('combats.fight_combat', combat_id=combat.id) }}" class="btn fight-btn">Fight</a>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('combats.join_combat', combat_id=combat.id) }}" style="display:inline;">
+                        <button type="submit" class="btn join-btn">Join</button>
+                    </form>
+                    {% endif %}
                 </div>
             </li>
             {% endfor %}
