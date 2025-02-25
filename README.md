@@ -33,29 +33,42 @@ dnd-campaign-manager
 - Flask-Login
 - Redis
 
-## Instalación
-1. Clona el repositorio:
-   ```
-   git clone https://github.com/tu_usuario/dnd-campaign-manager.git
-   ```
-2. Navega al directorio del proyecto:
-   ```
-   cd dnd-campaign-manager
-   ```
-3. Instala las dependencias:
-   ```
-   pip install -r requirements.txt
-   ```
+  
+🛠️ Entidades principales
 
-## Uso
-1. Inicia el servidor:
-   ```
-   python app.py
-   ```
-2. Accede a la aplicación en tu navegador en `http://127.0.0.1:5000`.
+    Usuarios 👤
+        Atributos: ID, nombre, email, contraseña (hash), rol (jugador o máster).
+        Relaciones:
+            Un usuario puede tener varios personajes.
+            Un usuario (máster) puede gestionar varias campañas.
 
-## Contribuciones
-Las contribuciones son bienvenidas. Si deseas contribuir, por favor abre un issue o envía un pull request.
+    Personajes ⚔️
+        Atributos: ID, nombre, raza, clase, nivel, estadísticas (fuerza, destreza, etc.), inventario.
+        Relaciones:
+            Un personaje pertenece a un usuario (jugador).
+            Un personaje puede estar en varias campañas.
 
-## Licencia
-Este proyecto está bajo la Licencia MIT.
+    Campañas 📜
+        Atributos: ID, nombre, descripción, estado (abierta/cerrada), máster asignado.
+        Relaciones:
+            Una campaña pertenece a un máster (usuario).
+            Una campaña puede tener varios personajes asociados.
+            Una campaña tiene varias misiones.
+
+    Misiones 🎭
+        Atributos: ID, nombre, descripción, estado (pendiente/en progreso/completada), votos de jugadores.
+        Relaciones:
+            Una misión pertenece a una campaña.
+            Una misión puede estar vinculada a combates.
+
+    Combates ⚔️🔥
+        Atributos: ID, enemigos, estado del combate, log de acciones.
+        Relaciones:
+            Un combate pertenece a una campaña.
+            Puede incluir varios personajes y enemigos.
+
+    Inventario y objetos 🏹
+        Atributos: ID, nombre, tipo, efectos, cantidad.
+        Relaciones:
+            Un personaje puede tener varios objetos en su inventario.
+            Los objetos pueden estar disponibles en una campaña (recompensas, cofres, etc.).
