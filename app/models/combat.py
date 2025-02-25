@@ -3,12 +3,12 @@ from app import db
 class Combat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=False)
     # ...otros campos necesarios...
 
-    def __init__(self, name, user_id):
+    def __init__(self, name, campaign_id):
         self.name = name
-        self.user_id = user_id
+        self.campaign_id = campaign_id
         self.participants = []
         self.turn_order = []
         self.active = False

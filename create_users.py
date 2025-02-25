@@ -2,6 +2,7 @@ from app import create_app, db
 from app.models.user import User
 from app.models.character import Character
 from app.models.campaign import Campaign
+from app.models.mission import Mission
 from app.models.combat import Combat
 
 app = create_app()
@@ -32,7 +33,7 @@ with app.app_context():
     db.session.add(campaign2)
     db.session.commit()
 
-    # Crear personajes
+    # Create characters
     character1 = Character(name='Aragorn', user_id=user1.id, race='Human', character_class='Ranger')
     character2 = Character(name='Legolas', user_id=user1.id, race='Elf', character_class='Archer')
 
@@ -40,9 +41,17 @@ with app.app_context():
     db.session.add(character2)
     db.session.commit()
 
-    # Crear combates
-    combat1 = Combat(name='Battle of Helm\'s Deep', user_id=master.id)
-    combat2 = Combat(name='Battle of Pelennor Fields', user_id=master.id)
+    # Create missions
+    mission1 = Mission(name='Protect the Shire', description='Ensure the safety of the Shire.', campaign_id=campaign1.id)
+    mission2 = Mission(name='Defend Helm\'s Deep', description='Defend the fortress of Helm\'s Deep.', campaign_id=campaign2.id)
+
+    db.session.add(mission1)
+    db.session.add(mission2)
+    db.session.commit()
+
+    # Create combats
+    combat1 = Combat(name='Battle of Helm\'s Deep', campaign_id=campaign2.id)
+    combat2 = Combat(name='Battle of Pelennor Fields', campaign_id=campaign2.id)
 
     db.session.add(combat1)
     db.session.add(combat2)
@@ -61,6 +70,9 @@ with app.app_context():
     print("Campañas:")
     print("Name: La comunidad del anillo")
     print("Name: Las dos torres")
+    print("Misiones:")
+    print("Name: Protect the Shire")
+    print("Name: Defend Helm's Deep")
     print("Combates:")
     print("Name: Battle of Helm's Deep")
     print("Name: Battle of Pelennor Fields")

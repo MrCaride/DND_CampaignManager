@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Operations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .btn {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Player Operations for {{ campaign.name }}</h2>
+        <div class="operations">
+            <a href="{{ url_for('missions.view_missions', campaign_id=campaign.id) }}" class="btn">View Missions</a>
+            <a href="{{ url_for('combats.view_combats', campaign_id=campaign.id) }}" class="btn">View Combats</a>
+        </div>
+    </div>
+</body>
+</html>

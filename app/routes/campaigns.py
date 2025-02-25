@@ -3,6 +3,8 @@ from flask_login import login_required, current_user
 from app.models.campaign import Campaign
 from app.models.user import User
 from app.models.character import Character
+from app.models.mission import Mission
+from app.models.combat import Combat
 from app import db
 
 campaigns_bp = Blueprint('campaigns', __name__)
@@ -114,8 +116,28 @@ def leave_campaign(campaign_id):
 @login_required
 def play_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
-    character = Character.query.filter_by(user_id=current_user.id, campaign_id=campaign.id).first()
-    if not character and current_user.role != 'master':
-        flash('You do not have a character in this campaign.', 'danger')
+    characters = Character.query.filter_by(campaign_id=campaign.id).all()
+    missions = Mission.query.filter_by(campaign_id=campaign.id).all()
+    combats = Combat.query.filter_by(campaign_id=campaign.id).all()
+    if current_user.role == 'master':
+        return render_template('campaigns/play_master.html', campaign=campaign, characters=characters, missions=missions, combats=combats)
+    else:
+        return render_template('campaigns/play_player.html', campaign=campaign, characters=characters, missions=missions, combats=combats)
+
+@campaigns_bp.route('/operations_master/<int:campaign_id>', methods=['GET'])
+@login_required
+def operations_master(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    if campaign.master_id != current_user.id:
+        flash('You do not have permission to manage this campaign.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
-    return render_template('campaigns/play.html', campaign=campaign)
+    return render_template('campaigns/operations_master.html', campaign=campaign)
+
+@campaigns_bp.route('/operations_player/<int:campaign_id>', methods=['GET'])
+@login_required
+def operations_player(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    if current_user not in campaign.allowed_players and not campaign.is_public:
+        flash('You do not have permission to enter this campaign.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+    return render_template('campaigns/operations_player.html', campaign=campaign)

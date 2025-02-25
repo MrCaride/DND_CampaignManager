@@ -2,9 +2,36 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.combat import Combat
 from app.models.mission import Mission
+from app.models.campaign import Campaign
 from app import redis_client, db
 
 combats_bp = Blueprint('combats', __name__)
+
+@combats_bp.route('/<int:campaign_id>/manage', methods=['GET', 'POST'])
+@login_required
+def manage_combats(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    if campaign.master_id != current_user.id:
+        flash('You do not have permission to manage combats for this campaign.', 'danger')
+        return redirect(url_for('campaigns.play_campaign', campaign_id=campaign_id))
+
+    if request.method == 'POST':
+        name = request.form['name']
+        new_combat = Combat(name=name, campaign_id=campaign_id)
+        db.session.add(new_combat)
+        db.session.commit()
+        flash('Combat created successfully!', 'success')
+        return redirect(url_for('combats.manage_combats', campaign_id=campaign_id))
+    
+    combats = Combat.query.filter_by(campaign_id=campaign_id).all()
+    return render_template('combats/manage.html', campaign=campaign, combats=combats)
+
+@combats_bp.route('/<int:campaign_id>/view', methods=['GET'])
+@login_required
+def view_combats(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    combats = Combat.query.filter_by(campaign_id=campaign_id).all()
+    return render_template('combats/view.html', campaign=campaign, combats=combats)
 
 @combats_bp.route('/')
 @login_required

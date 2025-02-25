@@ -1,10 +1,18 @@
-class Mission:
-    def __init__(self, id, campaign_id, title, description, objectives):
-        self.id = id
-        self.campaign_id = campaign_id
-        self.title = title
+from app import db
+
+class Mission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.String(500), nullable=False)
+    campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=False)
+
+    def __init__(self, name, description, campaign_id):
+        self.name = name
         self.description = description
-        self.objectives = objectives
+        self.campaign_id = campaign_id
+
+    def __repr__(self):
+        return f"<Mission {self.name} (ID: {self.id})>"
 
     def create_mission(self):
         # Logic to create a new mission in the database
