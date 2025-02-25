@@ -21,10 +21,10 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
+            text-align: center;
         }
         h2 {
             margin-bottom: 20px;
-            text-align: center;
         }
         form {
             display: flex;
@@ -50,9 +50,17 @@
         button:hover {
             background-color: #0056b3;
         }
-        .message {
-            text-align: center;
-            margin-top: 15px;
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -66,9 +74,7 @@
             <input type="password" id="password" name="password" required>
             <button type="submit">Login</button>
         </form>
-        <div class="message">
-            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-        </div>
+        <button class="back-button" onclick="window.location.href='{{ url_for('main.index') }}'">Back</button>
     </div>
 </body>
 </html>

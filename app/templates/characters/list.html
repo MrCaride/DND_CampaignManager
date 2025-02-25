@@ -76,7 +76,7 @@
             {% endfor %}
         </ul>
         <button class="create-button" onclick="window.location.href='{{ url_for('characters.new_character') }}'">Create Character</button>
-        <button class="back-button" onclick="window.history.back()">Back</button>
+        <button class="back-button" onclick="window.location.href='{{ url_for('main.operations') }}'">Back</button>
     </div>
 </body>
 </html>

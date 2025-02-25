@@ -3,13 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DnD Campaign Manager</title>
+    <title>Welcome</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>Welcome to DnD Campaign Manager</h2>
-        <p>Please <a href="{{ url_for('auth.login') }}">login</a> to continue.</p>
+        <h1>Welcome to DND Campaign Manager</h1>
+        <p>Manage your characters, campaigns, and combats with ease.</p>
+        <a href="{{ url_for('auth.login') }}" class="button">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="button">Register</a>
     </div>
 </body>
 </html>

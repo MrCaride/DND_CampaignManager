@@ -76,6 +76,8 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
         .back-button:hover {
             background-color: #0056b3;
@@ -148,7 +150,7 @@
             </div>
             <button type="submit">Update</button>
         </form>
-        <button class="back-button" onclick="window.history.back()">Back</button>
+        <a href="{{ url_for('characters.list_characters') }}" class="back-button">Back</a>
     </div>
 </body>
 </html>
