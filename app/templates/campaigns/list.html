@@ -115,6 +115,7 @@
                 {% else %}
                 <form method="POST" action="{{ url_for('campaigns.leave_campaign', campaign_id=campaign.id) }}" style="display:inline;">
                     <button type="submit" class="leave-button">Leave</button>
+                    <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="play-button">Play</a>
                 </form>
                 {% endif %}
                 {% endif %}
