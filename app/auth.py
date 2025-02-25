@@ -12,9 +12,9 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password_hash, password):  # Cambiado a password_hash
+        if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            return redirect(url_for('main.index'))
+            return redirect(url_for('main.operations'))
         else:
             flash('Invalid username or password', 'danger')
     return render_template('login.html')
@@ -24,11 +24,12 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        role = request.form['role']
         user = User.query.filter_by(username=username).first()
         if user:
             flash('Username already exists', 'danger')
         else:
-            new_user = User(username=username, password=generate_password_hash(password))
+            new_user = User(username=username, password=generate_password_hash(password), role=role)
             db.session.add(new_user)
             db.session.commit()
             flash('Registration successful! Please log in.', 'success')

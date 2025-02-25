@@ -5,11 +5,13 @@ from app import db
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(150), nullable=False)  # Cambiado a password_hash
+    password_hash = db.Column(db.String(150), nullable=False)
+    role = db.Column(db.String(50), nullable=False)  # Agrega el campo role
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, role):
         self.username = username
-        self.set_password(password)  # Utiliza el método set_password
+        self.set_password(password)
+        self.role = role
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -21,19 +23,20 @@ class User(UserMixin, db.Model):
     def get_by_id(cls, user_id):
         user_data = redis_client.hgetall(f"user:{user_id}")
         if user_data:
-            user = cls(user_data['username'], user_data['password_hash'])
+            user = cls(user_data['username'], user_data['password_hash'], user_data['role'])
             user.id = user_id
             return user
         return None
 
     @classmethod
-    def create(cls, username, password):
-        user = cls(username, password)
+    def create(cls, username, password, role):
+        user = cls(username, password, role)
         user_id = redis_client.incr("user_id")  # Increment user ID
         user.id = user_id
         redis_client.hmset(f"user:{user_id}", {
             "username": username,
-            "password_hash": user.password_hash
+            "password_hash": user.password_hash,
+            "role": role
         })
         return user
 
