@@ -105,6 +105,11 @@ def fight_combat(combat_id):
         combat.participants_data = participants_data
         db.session.commit()
         return jsonify({"message": "Participants saved successfully"})
+    
+    # Verificar que participants_data no sea None
+    if combat.participants_data is None:
+        combat.participants_data = []
+
     return render_template('combats/fight.html', combat=combat, campaign=campaign)
 
 @combats_bp.route('/<int:combat_id>/save_participants', methods=['POST'])

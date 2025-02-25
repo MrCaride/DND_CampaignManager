@@ -150,6 +150,7 @@
             newParticipant.className = "participant";
             newParticipant.draggable = true;
             newParticipant.ondragstart = drag;
+            newParticipant.id = `participant-${document.getElementById("participants").children.length}`;
             newParticipant.innerHTML = `
                 <strong>${name}</strong>
                 <p>Total HP: ${totalHP}</p>
@@ -157,7 +158,7 @@
                 <input type="number" id="remaining-hp-${newParticipant.id}" value="${totalHP}" oninput="validateHP(this, ${totalHP})">
                 <label for="bonus-${newParticipant.id}">Bonus:</label>
                 <input type="text" id="bonus-${newParticipant.id}" value="${bonus}">
-                <button class="delete-btn" onclick="deleteParticipant(${document.getElementById("participants").children.length})">Delete</button>
+                <button class="delete-btn" onclick="deleteParticipant(${document.getElementById("participants").children.length - 1})">Delete</button>
             `;
             document.getElementById("participants").appendChild(newParticipant);
             saveParticipants();
@@ -221,19 +222,23 @@
             <p>Status: {{ 'Active' if combat.active else 'Inactive' }}</p>
             <p>Participants:</p>
             <div id="participants" ondrop="drop(event)" ondragover="allowDrop(event)">
-                {% for participant in combat.participants_data %}
-                <div id="participant-{{ loop.index }}" class="participant" {% if current_user.role == 'master' %}draggable="true" ondragstart="drag(event)"{% endif %}>
-                    <strong>{{ participant.name }}</strong>
-                    <p>Total HP: {{ participant.totalHP }}</p>
-                    <label for="remaining-hp-{{ loop.index }}">Remaining HP:</label>
-                    <input type="number" id="remaining-hp-{{ loop.index }}" value="{{ participant.totalHP }}" oninput="validateHP(this, {{ participant.totalHP }})" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
-                    <label for="bonus-{{ loop.index }}">Bonus:</label>
-                    <input type="text" id="bonus-{{ loop.index }}" value="{{ participant.bonus }}" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
-                    {% if current_user.role == 'master' %}
-                    <button class="delete-btn" onclick="deleteParticipant({{ loop.index0 }})">Delete</button>
-                    {% endif %}
-                </div>
-                {% endfor %}
+                {% if combat.participants_data %}
+                    {% for participant in combat.participants_data %}
+                    <div id="participant-{{ loop.index }}" class="participant" {% if current_user.role == 'master' %}draggable="true" ondragstart="drag(event)"{% endif %}>
+                        <strong>{{ participant.name }}</strong>
+                        <p>Total HP: {{ participant.totalHP }}</p>
+                        <label for="remaining-hp-{{ loop.index }}">Remaining HP:</label>
+                        <input type="number" id="remaining-hp-{{ loop.index }}" value="{{ participant.totalHP }}" oninput="validateHP(this, {{ participant.totalHP }})" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
+                        <label for="bonus-{{ loop.index }}">Bonus:</label>
+                        <input type="text" id="bonus-{{ loop.index }}" value="{{ participant.bonus }}" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
+                        {% if current_user.role == 'master' %}
+                        <button class="delete-btn" onclick="deleteParticipant({{ loop.index0 }})">Delete</button>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No participants available.</p>
+                {% endif %}
             </div>
         </div>
         {% if current_user.role == 'master' %}
