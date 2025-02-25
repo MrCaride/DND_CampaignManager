@@ -201,17 +201,6 @@ Este script es útil para configurar rápidamente un entorno de desarrollo con d
   - Un combate pertenece a una campaña.
   - Puede incluir varios personajes y enemigos.
 
-### Inventario y objetos 🏹
-- **Atributos**:
-  - `id`: ID del objeto
-  - `name`: Nombre del objeto
-  - `type`: Tipo de objeto
-  - `effects`: Efectos del objeto
-  - `quantity`: Cantidad
-- **Relaciones**:
-  - Un personaje puede tener varios objetos en su inventario.
-  - Los objetos pueden estar disponibles en una campaña (recompensas, cofres, etc.).
-
 ## Roles
 
 ### Máster
