@@ -29,7 +29,8 @@ def register():
         if user:
             flash('Username already exists', 'danger')
         else:
-            new_user = User(username=username, password=generate_password_hash(password), role=role)
+            new_user = User(username=username, password=password, role=role)
+            new_user.set_password(password)
             db.session.add(new_user)
             db.session.commit()
             flash('Registration successful! Please log in.', 'success')
