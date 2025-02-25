@@ -6,6 +6,7 @@ class Character(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('characters', lazy=True))  # Añade la relación con User
     race = db.Column(db.String(50), nullable=False)
     character_class = db.Column(db.String(50), nullable=False)
     level = db.Column(db.Integer, nullable=False, default=1)

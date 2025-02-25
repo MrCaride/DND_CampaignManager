@@ -64,19 +64,34 @@
         .back-button:hover {
             background-color: #0056b3;
         }
+        .join-button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .join-button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Join Campaign</h2>
+        <h2>Join Campaign: {{ campaign.name }}</h2>
         <form method="POST" action="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}">
-            <label for="character_id">Select Character:</label>
-            <select id="character_id" name="character_id" required>
-                {% for character in characters %}
-                <option value="{{ character.id }}">{{ character.name }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Join</button>
+            <div class="form-group">
+                <label for="character_id">Select Character:</label>
+                <select id="character_id" name="character_id" class="form-control" required>
+                    {% for character in characters %}
+                    <option value="{{ character.id }}">{{ character.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="join-button">Join</button>
         </form>
         <a href="{{ url_for('campaigns.list_campaigns') }}" class="back-button">Back</a>
     </div>
