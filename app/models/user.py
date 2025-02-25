@@ -1,12 +1,15 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import redis_client
+from app import db
 
-class User(UserMixin):
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password_hash = db.Column(db.String(150), nullable=False)  # Cambiado a password_hash
+
     def __init__(self, username, password):
-        self.id = None  # This will be set when the user is added to the database
         self.username = username
-        self.password_hash = generate_password_hash(password)
+        self.set_password(password)  # Utiliza el método set_password
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

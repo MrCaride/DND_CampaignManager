@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DnD Campaign Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to DnD Campaign Manager</h2>
+        <p>Please <a href="{{ url_for('auth.login') }}">login</a> to continue.</p>
+    </div>
+</body>
+</html>

@@ -14,7 +14,7 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash('Login successful!', 'success')
-            return redirect(url_for('home'))  # Redirect to a home page or dashboard
+            return redirect(url_for('welcome'))  # Redirect to the welcome page
         else:
             flash('Invalid username or password', 'danger')
     return render_template('auth/login.html')
