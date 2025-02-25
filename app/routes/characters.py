@@ -16,7 +16,9 @@ def list_characters():
 def new_character():
     if request.method == 'POST':
         name = request.form['name']
-        new_character = Character(name=name, user_id=current_user.id)
+        race = request.form['race']
+        character_class = request.form['character_class']
+        new_character = Character(name=name, user_id=current_user.id, race=race, character_class=character_class)
         db.session.add(new_character)
         db.session.commit()
         flash('Character created successfully!', 'success')
@@ -27,12 +29,15 @@ def new_character():
 @login_required
 def edit_character(character_id):
     character = Character.query.get_or_404(character_id)
-    if character.player_id != current_user.id:
+    if character.user_id != current_user.id:
         flash('You do not have permission to edit this character.', 'danger')
         return redirect(url_for('characters.list_characters'))
 
     if request.method == 'POST':
         character.name = request.form.get('name')
+        character.race = request.form.get('race')
+        character.character_class = request.form.get('character_class')
+        # ...actualizar otros campos necesarios...
         db.session.commit()
         flash('Character updated successfully!', 'success')
         return redirect(url_for('characters.list_characters'))
