@@ -45,6 +45,6 @@ def delete_campaign(campaign_id):
         flash('You do not have permission to delete this campaign.', 'danger')
     return redirect(url_for('campaigns.list_campaigns'))
 
-@campaigns_bp.route('/')
+@campaigns_bp.route('/campaigns/index')
 def campaigns_index():
     return render_template('campaigns/index.html')
