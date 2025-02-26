@@ -88,25 +88,30 @@
         <div id="participants">
             {% for participant in combat.participants_data %}
             <div class="participant" data-id="{{ loop.index }}">
-                <input type="text" value="{{ participant.name }}" class="participant-name">
-                <input type="number" value="{{ participant.remainingHP }}" max="{{ participant.totalHP }}" class="current-hp">
+                <input type="text" value="{{ participant.name }}" class="participant-name" {% if current_user.role == 'player' %}disabled{% endif %}>
+                <input type="number" value="{{ participant.remainingHP }}" max="{{ participant.totalHP }}" class="current-hp" {% if current_user.role == 'player' %}disabled{% endif %}>
                 <span>/ {{ participant.totalHP }}</span>
                 <div class="health-bar">
                     <div class="health-bar-inner" style="width: {% if participant.totalHP|int > 0 %}{{ (participant.remainingHP|int / participant.totalHP|int) * 100 }}{% else %}0{% endif %}%;"></div>
                 </div>
+                {% if current_user.role == 'master' %}
                 <button class="btn btn-danger remove-participant">Remove</button>
                 <button class="btn btn-unconscious mark-unconscious">Unconscious</button>
                 <button class="btn btn-move move-up">Move Up</button>
                 <button class="btn btn-move move-down">Move Down</button>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
+        {% if current_user.role == 'master' %}
         <button class="btn" id="add-participant">Add Participant</button>
         <button class="btn" id="save-state">Save State</button>
         <button class="btn btn-danger" id="delete-state">Delete State</button>
-        <button class="btn btn-secondary" id="reset-initiative">Reset Initiative</button>
-        <a href="{% if current_user.role == 'master' %}{{ url_for('combats.manage_combats', campaign_id=combat.campaign_id) }}{% else %}{{ url_for('combats.view_combats', campaign_id=combat.campaign_id) }}{% endif %}" class="btn btn-secondary" style="margin-top: 10px;">Back</a>
+        <button class="btn btn-secondary" id="reset-initiative" style="margin-bottom: 40px;">Reset Initiative</button>
+        {% endif %}
+        <a href="{% if current_user.role == 'master' %}{{ url_for('combats.manage_combats', campaign_id=combat.campaign_id) }}{% else %}{{ url_for('combats.view_combats', campaign_id=combat.campaign_id) }}{% endif %}" class="btn btn-secondary" >Back</a>
     </div>
+    {% if current_user.role == 'master' %}
     <script>
         document.getElementById('add-participant').addEventListener('click', function() {
             const participantsDiv = document.getElementById('participants');
@@ -200,5 +205,6 @@
             }
         });
     </script>
+    {% endif %}
 </body>
 </html>
