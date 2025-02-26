@@ -146,6 +146,23 @@ def get_participants(combat_id):
     ]
     return jsonify({'participants': participants_data})
 
+@combats_bp.route('/delete_state/<int:combat_id>', methods=['POST'])
+def delete_state(combat_id):
+    combat = Combat.query.get(combat_id)
+    if combat:
+        initial_participants = [
+            {
+                'name': participant.name,
+                'remainingHP': participant.hit_points,
+                'totalHP': participant.hit_points
+            }
+            for participant in combat.participants
+        ]
+        combat.participants_data = initial_participants
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Combat state reset to initial participants successfully.'})
+    return jsonify({'success': False, 'message': 'Combat not found.'})
+
 @combats_bp.route('/')
 def combats_index():
     return render_template('combats/index.html')

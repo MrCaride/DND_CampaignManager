@@ -11,7 +11,7 @@ class Combat(db.Model):
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=False)
     participants = db.relationship('Character', secondary=combat_participants, backref='combats')
     active = db.Column(db.Boolean, default=False)
-    participants_data = db.Column(db.JSON, nullable=True)  # Nuevo campo para guardar los datos de los participantes
+    participants_data = db.Column(db.JSON, nullable=True)  # New field for storing participants' data
 
     def __init__(self, name, campaign_id):
         self.name = name

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fight Combat</title>
+    <title>Fight</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         .container {
@@ -18,287 +18,187 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        .combat-details {
-            margin-bottom: 20px;
-        }
-        .combat-details p {
-            margin: 5px 0;
-        }
-        .back-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #6c757d;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-        }
-        .back-button:hover {
-            background-color: #5a6268;
-        }
         .participant {
-            display: inline-block;
-            padding: 15px;
-            margin: 10px;
-            background-color: #ffffff;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 180px;
-            {% if current_user.role == 'master' %}cursor: move;{% endif %}
-        }
-        .participant strong {
-            display: block;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
-            font-size: 1.2em;
-            color: #333;
-        }
-        .participant p {
-            margin: 5px 0;
-            font-size: 0.9em;
-            color: #666;
-        }
-        .participant label {
-            display: block;
-            margin-top: 10px;
-            font-size: 0.8em;
-            color: #666;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
         .participant input {
+            width: 60px;
+            margin-right: 10px;
+        }
+        .health-bar {
             width: 100%;
-            padding: 5px;
-            margin-top: 5px;
-            border: 1px solid #ced4da;
+            background-color: #e0e0e0;
             border-radius: 4px;
-            box-sizing: border-box;
+            overflow: hidden;
         }
-        .add-participant-btn {
-            display: inline-block;
-            padding: 10px 20px;
+        .health-bar-inner {
+            height: 20px;
             background-color: #28a745;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #007bff;
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             text-decoration: none;
             text-align: center;
-            margin-top: 20px;
+            margin: 5px; /* Add margin for more space between buttons */
         }
-        .add-participant-btn:hover {
-            background-color: #218838;
+        .btn:hover {
+            background-color: #0056b3;
         }
-        .delete-btn {
-            display: inline-block;
-            padding: 5px 10px;
+        .btn-danger {
             background-color: #dc3545;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            margin-top: 10px;
         }
-        .delete-btn:hover {
+        .btn-danger:hover {
             background-color: #c82333;
         }
-        #participants {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 10px;
+        .btn-secondary {
+            background-color: #6c757d;
         }
-        .form-group {
-            margin-bottom: 15px;
+        .btn-secondary:hover {
+            background-color: #5a6268;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
+        .btn-move {
+            background-color: #ffc107;
         }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+        .btn-move:hover {
+            background-color: #e0a800;
+        }
+        .btn-unconscious {
+            background-color: #6c757d;
+        }
+        .btn-unconscious.active {
+            background-color: #28a745;
         }
     </style>
-    <script>
-        function deleteParticipant(index) {
-            const participants = document.getElementById("participants");
-            participants.removeChild(participants.children[index]);
-            saveParticipants();
-        }
-
-        function addParticipant() {
-            const name = document.getElementById("new-participant-name").value;
-            const totalHP = document.getElementById("new-participant-total-hp").value;
-            const bonus = document.getElementById("new-participant-bonus").value;
-
-            if (totalHP <= 0) {
-                alert("Total HP must be greater than 0");
-                return;
-            }
-
-            const newParticipant = document.createElement("div");
-            newParticipant.className = "participant";
-            {% if current_user.role == 'master' %}
-            newParticipant.draggable = true;
-            newParticipant.ondragstart = drag;
-            {% endif %}
-            newParticipant.id = `participant-${document.getElementById("participants").children.length}`;
-            newParticipant.innerHTML = `
-                <strong>${name}</strong>
-                <p>Total HP: ${totalHP}</p>
-                <label for="remaining-hp-${newParticipant.id}">Remaining HP:</label>
-                <input type="number" id="remaining-hp-${newParticipant.id}" value="${totalHP}" oninput="validateHP(this, ${totalHP})" {% if current_user.role != 'master' %}disabled{% endif %}>
-                <label for="bonus-${newParticipant.id}">Bonus:</label>
-                <input type="text" id="bonus-${newParticipant.id}" value="${bonus}" {% if current_user.role != 'master' %}disabled{% endif %}>
-                {% if current_user.role == 'master' %}
-                <button class="delete-btn" onclick="deleteParticipant(${document.getElementById("participants").children.length - 1})">Delete</button>
-                {% endif %}
-            `;
-            document.getElementById("participants").appendChild(newParticipant);
-            saveParticipants();
-        }
-
-        function validateHP(input, totalHP) {
-            if (parseInt(input.value) > totalHP) {
-                input.value = totalHP;
-            }
-        }
-
-        function allowDrop(event) {
-            event.preventDefault();
-        }
-
-        function drag(event) {
-            event.dataTransfer.setData("text", event.target.id);
-        }
-
-        function drop(event) {
-            event.preventDefault();
-            const data = event.dataTransfer.getData("text");
-            const draggedElement = document.getElementById(data);
-            const targetElement = event.target.closest(".participant");
-            if (targetElement && targetElement !== draggedElement) {
-                const participants = document.getElementById("participants");
-                const draggedIndex = Array.from(participants.children).indexOf(draggedElement);
-                const targetIndex = Array.from(participants.children).indexOf(targetElement);
-                if (draggedIndex > targetIndex) {
-                    participants.insertBefore(draggedElement, targetElement);
-                } else {
-                    participants.insertBefore(draggedElement, targetElement.nextSibling);
-                }
-                saveParticipants();
-            }
-        }
-
-        function saveParticipants() {
-            const participants = document.getElementById("participants").children;
-            const participantsData = Array.from(participants).map((participant, index) => {
-                return {
-                    name: participant.querySelector("strong").textContent,
-                    totalHP: participant.querySelector("input[type='number']").value,
-                    remainingHP: participant.querySelector("input[type='number']").value,
-                    bonus: participant.querySelector("input[type='text']").value,
-                    order: index
-                };
-            });
-            fetch("{{ url_for('combats.save_participants', combat_id=combat.id) }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ participants: participantsData })
-            });
-        }
-
-        function addParticipantFromServer(name, totalHP, remainingHP, bonus) {
-            const newParticipant = document.createElement("div");
-            newParticipant.className = "participant";
-            {% if current_user.role == 'master' %}
-            newParticipant.draggable = true;
-            newParticipant.ondragstart = drag;
-            {% endif %}
-            newParticipant.id = `participant-${document.getElementById("participants").children.length}`;
-            newParticipant.innerHTML = `
-                <strong>${name}</strong>
-                <p>Total HP: ${totalHP}</p>
-                <label for="remaining-hp-${newParticipant.id}">Remaining HP:</label>
-                <input type="number" id="remaining-hp-${newParticipant.id}" value="${remainingHP}" oninput="validateHP(this, ${totalHP})" {% if current_user.role != 'master' %}disabled{% endif %}>
-                <label for="bonus-${newParticipant.id}">Bonus:</label>
-                <input type="text" id="bonus-${newParticipant.id}" value="${bonus}" {% if current_user.role != 'master' %}disabled{% endif %}>
-                {% if current_user.role == 'master' %}
-                <button class="delete-btn" onclick="deleteParticipant(${document.getElementById("participants").children.length - 1})">Delete</button>
-                {% endif %}
-            `;
-            document.getElementById("participants").appendChild(newParticipant);
-            saveParticipants();
-        }
-
-        function fetchParticipants() {
-            fetch("{{ url_for('combats.get_participants', combat_id=combat.id) }}")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("participants").innerHTML = '';
-                    data.participants.forEach(participant => {
-                        addParticipantFromServer(participant.name, participant.totalHP, participant.remainingHP, participant.bonus);
-                    });
-                });
-        }
-
-        document.addEventListener("DOMContentLoaded", fetchParticipants);
-    </script>
 </head>
 <body>
     <div class="container">
-        <h2>Combat: {{ combat.name }}</h2>
-        <div class="combat-details">
-            <p>Status: {{ 'Active' if combat.active else 'Inactive' }}</p>
-            <p>Participants:</p>
-            <div id="participants" ondrop="drop(event)" ondragover="allowDrop(event)">
-                {% if combat.participants_data %}
-                    {% for participant in combat.participants_data %}
-                    <div id="participant-{{ loop.index }}" class="participant" {% if current_user.role == 'master' %}draggable="true" ondragstart="drag(event)"{% endif %}>
-                        <strong>{{ participant.name }}</strong>
-                        <p>Total HP: {{ participant.totalHP }}</p>
-                        <label for="remaining-hp-{{ loop.index }}">Remaining HP:</label>
-                        <input type="number" id="remaining-hp-{{ loop.index }}" value="{{ participant.remainingHP }}" oninput="validateHP(this, {{ participant.totalHP }})" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
-                        <label for="bonus-{{ loop.index }}">Bonus:</label>
-                        <input type="text" id="bonus-{{ loop.index }}" value="{{ participant.bonus }}" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
-                        {% if current_user.role == 'master' %}
-                        <button class="delete-btn" onclick="deleteParticipant({{ loop.index0 }})">Delete</button>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p>No participants available.</p>
-                {% endif %}
+        <h2>Combat Tracker</h2>
+        <div id="participants">
+            {% for participant in combat.participants_data %}
+            <div class="participant" data-id="{{ loop.index }}">
+                <input type="text" value="{{ participant.name }}" class="participant-name">
+                <input type="number" value="{{ participant.remainingHP }}" max="{{ participant.totalHP }}" class="current-hp">
+                <span>/ {{ participant.totalHP }}</span>
+                <div class="health-bar">
+                    <div class="health-bar-inner" style="width: {% if participant.totalHP|int > 0 %}{{ (participant.remainingHP|int / participant.totalHP|int) * 100 }}{% else %}0{% endif %}%;"></div>
+                </div>
+                <button class="btn btn-danger remove-participant">Remove</button>
+                <button class="btn btn-unconscious mark-unconscious">Unconscious</button>
+                <button class="btn btn-move move-up">Move Up</button>
+                <button class="btn btn-move move-down">Move Down</button>
             </div>
+            {% endfor %}
         </div>
-        {% if current_user.role == 'master' %}
-        <div class="form-group">
-            <label for="new-participant-name">Name:</label>
-            <input type="text" id="new-participant-name" placeholder="Enter participant name">
-        </div>
-        <div class="form-group">
-            <label for="new-participant-total-hp">Total HP:</label>
-            <input type="number" id="new-participant-total-hp" placeholder="Enter total HP">
-        </div>
-        <div class="form-group">
-            <label for="new-participant-bonus">Bonus:</label>
-            <input type="text" id="new-participant-bonus" placeholder="Enter bonus">
-        </div>
-        <button class="add-participant-btn" onclick="addParticipant()">Add Participant</button>
-        {% endif %}
-        <a href="{{ url_for('combats.manage_combats', campaign_id=campaign.id) }}" class="back-button">Back</a>
+        <button class="btn" id="add-participant">Add Participant</button>
+        <button class="btn" id="save-state">Save State</button>
+        <button class="btn btn-danger" id="delete-state">Delete State</button>
+        <button class="btn btn-secondary" id="reset-initiative">Reset Initiative</button>
+        <a href="{% if current_user.role == 'master' %}{{ url_for('combats.manage_combats', campaign_id=combat.campaign_id) }}{% else %}{{ url_for('combats.view_combats', campaign_id=combat.campaign_id) }}{% endif %}" class="btn btn-secondary" style="margin-top: 10px;">Back</a>
     </div>
+    <script>
+        document.getElementById('add-participant').addEventListener('click', function() {
+            const participantsDiv = document.getElementById('participants');
+            const newParticipant = document.createElement('div');
+            newParticipant.classList.add('participant');
+            newParticipant.innerHTML = `
+                <input type="text" placeholder="Name" class="participant-name">
+                <input type="number" placeholder="HP" class="current-hp">
+                <span>/ <input type="number" placeholder="Total HP" class="total-hp"></span>
+                <div class="health-bar">
+                    <div class="health-bar-inner" style="width: 0%;"></div>
+                </div>
+                <button class="btn btn-danger remove-participant">Remove</button>
+                <button class="btn btn-unconscious mark-unconscious">Unconscious</button>
+                <button class="btn btn-move move-up">Move Up</button>
+                <button class="btn btn-move move-down">Move Down</button>
+            `;
+            participantsDiv.appendChild(newParticipant);
+        });
+
+        document.getElementById('save-state').addEventListener('click', function() {
+            const participants = [];
+            document.querySelectorAll('.participant').forEach((participant, index) => {
+                const name = participant.querySelector('.participant-name').value;
+                const remainingHP = participant.querySelector('.current-hp').value;
+                const totalHP = participant.querySelector('.total-hp') ? participant.querySelector('.total-hp').value : participant.querySelector('span').innerText.split('/')[1].trim();
+                participants.push({ name, remainingHP, totalHP });
+            });
+            fetch('{{ url_for("combats.save_participants", combat_id=combat.id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ participants })
+            }).then(response => response.json()).then(data => {
+                alert(data.message);
+            });
+        });
+
+        document.getElementById('delete-state').addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete the current state?')) {
+                fetch('{{ url_for("combats.delete_state", combat_id=combat.id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json()).then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+
+        document.getElementById('reset-initiative').addEventListener('click', function() {
+            document.querySelectorAll('.participant').forEach(participant => {
+                const totalHP = participant.querySelector('.total-hp') ? participant.querySelector('.total-hp').value : participant.querySelector('span').innerText.split('/')[1].trim();
+                participant.querySelector('.current-hp').value = totalHP;
+                participant.querySelector('.health-bar-inner').style.width = '100%';
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-participant')) {
+                event.target.closest('.participant').remove();
+            } else if (event.target.classList.contains('mark-unconscious')) {
+                event.target.classList.toggle('active');
+                event.target.closest('.participant').classList.toggle('unconscious');
+            } else if (event.target.classList.contains('move-up')) {
+                const participant = event.target.closest('.participant');
+                const previousParticipant = participant.previousElementSibling;
+                if (previousParticipant) {
+                    participant.parentNode.insertBefore(participant, previousParticipant);
+                }
+            } else if (event.target.classList.contains('move-down')) {
+                const participant = event.target.closest('.participant');
+                const nextParticipant = participant.nextElementSibling;
+                if (nextParticipant) {
+                    participant.parentNode.insertBefore(nextParticipant, participant);
+                }
+            }
+        });
+
+        document.addEventListener('input', function(event) {
+            if (event.target.classList.contains('current-hp')) {
+                const currentHP = parseInt(event.target.value);
+                const totalHP = parseInt(event.target.nextElementSibling.querySelector('.total-hp') ? event.target.nextElementSibling.querySelector('.total-hp').value : event.target.nextElementSibling.innerText.split('/')[1].trim());
+                const healthBarInner = event.target.nextElementSibling.nextElementSibling.firstElementChild;
+                healthBarInner.style.width = totalHP > 0 ? `${(currentHP / totalHP) * 100}%` : '0%';
+            }
+        });
+    </script>
 </body>
 </html>
