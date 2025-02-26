@@ -18,7 +18,28 @@ def new_character():
         name = request.form['name']
         race = request.form['race']
         character_class = request.form['character_class']
-        new_character = Character(name=name, user_id=current_user.id, race=race, character_class=character_class)
+        level = request.form.get('level', 1) or 1
+        strength = request.form.get('strength', 10) or 1
+        dexterity = request.form.get('dexterity', 10) or 1
+        constitution = request.form.get('constitution', 10) or 1
+        intelligence = request.form.get('intelligence', 10) or 1
+        wisdom = request.form.get('wisdom', 10) or 1
+        charisma = request.form.get('charisma', 10) or 1
+        hit_points = request.form.get('hit_points', 10) or 1
+        armor_class = request.form.get('armor_class', 10) or 1
+        initiative = request.form.get('initiative', 0) or 1
+        speed = request.form.get('speed', 30) or 1
+        
+        if not name or not race or not character_class:
+            flash('Name, race, and class are required fields.', 'danger')
+            return redirect(url_for('characters.new_character'))
+        
+        new_character = Character(
+            name=name, user_id=current_user.id, race=race, character_class=character_class,
+            level=level, strength=strength, dexterity=dexterity, constitution=constitution,
+            intelligence=intelligence, wisdom=wisdom, charisma=charisma, hit_points=hit_points,
+            armor_class=armor_class, initiative=initiative, speed=speed
+        )
         db.session.add(new_character)
         db.session.commit()
         flash('Character created successfully!', 'success')
@@ -37,17 +58,17 @@ def edit_character(character_id):
         character.name = request.form.get('name')
         character.race = request.form.get('race')
         character.character_class = request.form.get('character_class')
-        character.level = request.form.get('level')
-        character.strength = request.form.get('strength')
-        character.dexterity = request.form.get('dexterity')
-        character.constitution = request.form.get('constitution')
-        character.intelligence = request.form.get('intelligence')
-        character.wisdom = request.form.get('wisdom')
-        character.charisma = request.form.get('charisma')
-        character.hit_points = request.form.get('hit_points')
-        character.armor_class = request.form.get('armor_class')
-        character.initiative = request.form.get('initiative')
-        character.speed = request.form.get('speed')
+        character.level = request.form.get('level') or 1
+        character.strength = request.form.get('strength') or 1
+        character.dexterity = request.form.get('dexterity') or 1
+        character.constitution = request.form.get('constitution') or 1
+        character.intelligence = request.form.get('intelligence') or 1
+        character.wisdom = request.form.get('wisdom') or 1
+        character.charisma = request.form.get('charisma') or 1
+        character.hit_points = request.form.get('hit_points') or 1
+        character.armor_class = request.form.get('armor_class') or 1
+        character.initiative = request.form.get('initiative') or 1
+        character.speed = request.form.get('speed') or 1
         db.session.commit()
         flash('Character updated successfully!', 'success')
         return redirect(url_for('characters.list_characters'))

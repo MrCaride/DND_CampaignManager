@@ -23,14 +23,23 @@ class Character(db.Model):
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=True)  # Nueva propiedad
     bonus = db.Column(db.String(50), nullable=True)
 
-    def __init__(self, name, user_id, race, character_class, hit_points, bonus, initiative):
+    def __init__(self, name, race, character_class, user_id, level=1, strength=10, dexterity=10, constitution=10, intelligence=10, wisdom=10, charisma=10, hit_points=10, armor_class=10, initiative=0, speed=30, bonus=None):
         self.name = name
-        self.user_id = user_id
         self.race = race
         self.character_class = character_class
+        self.user_id = user_id
+        self.level = level
+        self.strength = strength
+        self.dexterity = dexterity
+        self.constitution = constitution
+        self.intelligence = intelligence
+        self.wisdom = wisdom
+        self.charisma = charisma
         self.hit_points = hit_points
-        self.bonus = bonus
+        self.armor_class = armor_class
         self.initiative = initiative
+        self.speed = speed
+        self.bonus = bonus
         
 
     def save(self):
@@ -43,7 +52,7 @@ class Character(db.Model):
             'level': self.level,
             'strength': self.strength,
             'dexterity': self.dexterity,
-            'constitution': self.constition,
+            'constitution': self.constitution,
             'intelligence': self.intelligence,
             'wisdom': self.wisdom,
             'charisma': self.charisma,

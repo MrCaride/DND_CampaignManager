@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .combat-details {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    .combat-details p {
+        margin: 10px 0;
+    }
+    .combat-details ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    .combat-details li {
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+    }
+    .btn-back {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+    }
+    .btn-back:hover {
+        background-color: #0056b3;
+    }
+</style>
+<div class="container">
+    <h2>View Combat</h2>
+    <div class="combat-details">
+        <p><strong>Name:</strong> {{ combat.name }}</p>
+        <p><strong>Active:</strong> {{ 'Yes' if combat.active else 'No' }}</p>
+        <p><strong>Participants:</strong></p>
+        <ul>
+            {% for participant in combat.participants %}
+            <li>
+                <strong>{{ participant.name }}</strong>
+                <p>HP: {{ participant.hit_points }}</p>
+                <p>Bonus: {{ participant.bonus }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <a href="{{ url_for('combats.view_combats', campaign_id=combat.campaign_id) }}" class="btn-back">Back</a>
+</div>
+{% endblock %}

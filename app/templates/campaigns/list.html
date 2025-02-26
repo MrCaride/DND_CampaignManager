@@ -91,42 +91,43 @@
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h2>Manage Campaigns</h2>
-        <ul>
-            {% for campaign in campaigns %}
-            <li class="campaign-item">
-                <strong>{{ campaign.name }}</strong>
-                <div class="button-group">
-                    <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn view-button">View</a>
-                    {% if current_user.role == 'master' %}
-                    <a href="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}" class="btn edit-button">Edit</a>
-                    <form method="POST" action="{{ url_for('campaigns.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
-                        <button type="submit" class="btn delete-button">Delete</button>
-                    </form>
-                    <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
-                    {% else %}
-                    {% set character_in_campaign = current_user.characters | selectattr('campaign_id', 'equalto', campaign.id) | list %}
-                    {% if character_in_campaign %}
-                    <form method="POST" action="{{ url_for('campaigns.leave_campaign', campaign_id=campaign.id) }}" style="display:inline;">
-                        <button type="submit" class="btn leave-button">Leave</button>
-                    </form>
-                    <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
-                    {% else %}
-                    <a href="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}" class="btn join-button">Join</a>
-                    {% endif %}
-                    {% endif %}
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-        <div class="button-container">
-            {% if current_user.role == 'master' %}
-            <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>
-            {% endif %}
-            <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
-        </div>
-    </div>
-</body>
 </html>
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Manage Campaigns</h2>
+    <ul>
+        {% for campaign in campaigns %}
+        <li class="campaign-item">
+            <strong>{{ campaign.name }}</strong>
+            <div class="button-group">
+                <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn view-button">View</a>
+                {% if current_user.role == 'master' %}
+                <a href="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}" class="btn edit-button">Edit</a>
+                <form method="POST" action="{{ url_for('campaigns.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                    <button type="submit" class="btn delete-button">Delete</button>
+                </form>
+                <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
+                {% else %}
+                {% set character_in_campaign = current_user.characters | selectattr('campaign_id', 'equalto', campaign.id) | list %}
+                {% if character_in_campaign %}
+                <form method="POST" action="{{ url_for('campaigns.leave_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                    <button type="submit" class="btn leave-button">Leave</button>
+                </form>
+                <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
+                {% else %}
+                <a href="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}" class="btn join-button">Join</a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="button-container">
+        {% if current_user.role == 'master' %}
+        <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>
+        {% endif %}
+        <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,9 +1,8 @@
 # To DO:
 
 - items
-- fix fight.html ( permanencia de pantalla)
-- fix character/list.html (errores en el html aunque correcto funcionamiento)
-- add toasts (en CRUDS)
+- Archivos con errores : operations, character/lists, fight
+
 
 
 # DnD Campaign Manager

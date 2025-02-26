@@ -81,3 +81,21 @@ def unvote_mission(mission_id):
     mission.unvote(current_user)
     flash('Vote removed successfully!', 'success')
     return redirect(url_for('missions.view_missions', campaign_id=mission.campaign_id))
+
+@missions_bp.route('/create', methods=['GET', 'POST'])
+@login_required
+def create_mission():
+    if request.method == 'POST':
+        name = request.form['name']
+        new_mission = Mission(name=name, creator_id=current_user.id)
+        db.session.add(new_mission)
+        db.session.commit()
+        flash('Mission created successfully!', 'success')
+        return redirect(url_for('missions.list_missions'))
+    return render_template('missions/create.html')
+
+@missions_bp.route('/')
+@login_required
+def list_missions():
+    missions = Mission.query.filter_by(creator_id=current_user.id).all()
+    return render_template('missions/list.html', missions=missions)

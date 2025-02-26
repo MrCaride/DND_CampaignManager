@@ -46,28 +46,36 @@
     </style>
 </head>
 <body>
+    {% extends "base.html" %}
+    {% block content %}
     <div class="container">
-        <h2>Missions for {{ campaign.name }}</h2>
+        <h2>View Missions for {{ campaign.name }}</h2>
         <ul>
             {% for mission in missions %}
             <li class="mission-item">
                 <strong>{{ mission.name }}</strong>
                 <p>{{ mission.description }}</p>
-                <p>Rewards: {{ mission.rewards }}</p>
                 <p>Votes: {{ mission.votes }}</p>
-                {% if current_user in mission.voters %}
-                <form method="POST" action="{{ url_for('missions.unvote_mission', mission_id=mission.id) }}">
-                    <button type="submit" class="unvote-button">Remove Vote</button>
-                </form>
-                {% else %}
-                <form method="POST" action="{{ url_for('missions.vote_mission', mission_id=mission.id) }}">
-                    <button type="submit" class="vote-button">Vote to Participate</button>
-                </form>
-                {% endif %}
+                <p>Reward: {{ mission.rewards }}</p>
+                <div class="button-group">
+                    {% if current_user.role == 'master' %}
+                    <a href="{{ url_for('missions.edit_mission', mission_id=mission.id) }}" class="btn edit-button">Edit</a>
+                    <form method="POST" action="{{ url_for('missions.delete_mission', mission_id=mission.id) }}" style="display:inline;">
+                        <button type="submit" class="btn delete-button">Delete</button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('missions.vote_mission', mission_id=mission.id) }}" style="display:inline;">
+                        <button type="submit" class="btn vote-button">Vote</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('missions.unvote_mission', mission_id=mission.id) }}" style="display:inline;">
+                        <button type="submit" class="btn unvote-button">Unvote</button>
+                    </form>
+                </div>
             </li>
             {% endfor %}
         </ul>
         <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back</a>
     </div>
+    {% endblock %}
 </body>
 </html>

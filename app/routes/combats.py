@@ -63,9 +63,8 @@ def delete_combat(combat_id):
 def join_combat(combat_id):
     combat = Combat.query.get_or_404(combat_id)
     campaign = Campaign.query.get_or_404(combat.campaign_id)
-    character_id = request.form.get('character_id')
-    character = Character.query.get(character_id)
-    if character and character.user_id == current_user.id and character.campaign_id == campaign.id:
+    character = Character.query.filter_by(user_id=current_user.id, campaign_id=campaign.id).first()
+    if character:
         combat.add_participant(character)
         db.session.commit()
         flash('Joined combat successfully!', 'success')
