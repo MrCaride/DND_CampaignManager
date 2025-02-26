@@ -32,7 +32,6 @@ def create_app():
         return render_template('index.html')
 
     @app.route('/welcome')
-    @login_required
     def welcome():
         return render_template('welcome.html')
 

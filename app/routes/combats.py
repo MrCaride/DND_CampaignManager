@@ -133,6 +133,7 @@ def end_combat(combat_id):
     return redirect(url_for('campaigns.list_campaigns'))
 
 @combats_bp.route('/get_participants/<int:combat_id>', methods=['GET'])
+@login_required
 def get_participants(combat_id):
     combat = Combat.query.get_or_404(combat_id)
     participants_data = [
@@ -146,6 +147,7 @@ def get_participants(combat_id):
     return jsonify({'participants': participants_data})
 
 @combats_bp.route('/delete_state/<int:combat_id>', methods=['POST'])
+@login_required
 def delete_state(combat_id):
     combat = Combat.query.get(combat_id)
     if combat:
@@ -163,5 +165,6 @@ def delete_state(combat_id):
     return jsonify({'success': False, 'message': 'Combat not found.'})
 
 @combats_bp.route('/')
+@login_required
 def combats_index():
     return render_template('combats/index.html')
