@@ -98,6 +98,8 @@
                     <a href="{{ url_for('combats.fight_combat', combat_id=combat.id) }}" class="btn fight-btn">Fight</a>
                     {% else %}
                     <form method="POST" action="{{ url_for('combats.join_combat', combat_id=combat.id) }}" style="display:inline;">
+                        {% set character = current_user.characters | selectattr('campaign_id', 'equalto', campaign.id) | first %}
+                        <input type="hidden" name="character_id" value="{{ character.id }}">
                         <button type="submit" class="btn join-btn">Join</button>
                     </form>
                     {% endif %}

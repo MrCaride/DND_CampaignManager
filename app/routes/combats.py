@@ -63,11 +63,14 @@ def delete_combat(combat_id):
 def join_combat(combat_id):
     combat = Combat.query.get_or_404(combat_id)
     campaign = Campaign.query.get_or_404(combat.campaign_id)
-    character = Character.query.filter_by(user_id=current_user.id, campaign_id=campaign.id).first()
-    if character:
+    character_id = request.form.get('character_id')
+    character = Character.query.get(character_id)
+    if character and character.user_id == current_user.id and character.campaign_id == campaign.id:
         combat.add_participant(character)
         db.session.commit()
         flash('Joined combat successfully!', 'success')
+    else:
+        flash('Failed to join combat.', 'danger')
     return redirect(url_for('combats.view_combats', campaign_id=campaign.id))
 
 @combats_bp.route('/<int:combat_id>/leave', methods=['POST'])
@@ -129,6 +132,19 @@ def end_combat(combat_id):
     db.session.commit()
     flash('Combat ended successfully!', 'success')
     return redirect(url_for('campaigns.list_campaigns'))
+
+@combats_bp.route('/get_participants/<int:combat_id>', methods=['GET'])
+def get_participants(combat_id):
+    combat = Combat.query.get_or_404(combat_id)
+    participants_data = [
+        {
+            'name': participant.name,
+            'totalHP': participant.hit_points,
+            'bonus': participant.bonus
+        }
+        for participant in combat.participants
+    ]
+    return jsonify({'participants': participants_data})
 
 @combats_bp.route('/')
 def combats_index():

@@ -27,9 +27,17 @@ class Combat(db.Model):
         self.turn_order.clear()
 
     def add_participant(self, character):
-        if character not in self.participants:
-            self.participants.append(character)
-            db.session.commit()
+        participant_data = {
+            'name': character.name,
+            'totalHP': character.hit_points,
+            'remainingHP': character.hit_points,
+            'bonus': character.bonus
+        }
+        if self.participants_data is None:
+            self.participants_data = []
+        self.participants_data.append(participant_data)
+        self.participants.append(character)
+        db.session.commit()
 
     def remove_participant(self, character):
         if character in self.participants:
@@ -40,12 +48,6 @@ class Combat(db.Model):
         # Logic to determine turn order based on initiative
         self.turn_order = sorted(self.participants, key=lambda x: x.initiative, reverse=True)
 
-    def next_turn(self):
-        if self.turn_order:
-            current_turn = self.turn_order.pop(0)
-            self.turn_order.append(current_turn)
-            return current_turn
-        return None
 
     def get_status(self):
         return {
@@ -53,3 +55,17 @@ class Combat(db.Model):
             "participants": [participant.name for participant in self.participants],
             "turn_order": [character.name for character in self.turn_order]
         }
+
+    def save_state(self):
+        state = {
+            "active": self.active,
+            "participants_data": self.participants_data,
+            "turn_order": [character.id for character in self.turn_order]
+        }
+        return state
+
+    def restore_state(self, state):
+        self.active = state["active"]
+        self.participants_data = state["participants_data"]
+        self.turn_order = [Character.query.get(character_id) for character_id in state["turn_order"]]
+        db.session.commit()

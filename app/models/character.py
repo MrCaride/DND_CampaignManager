@@ -21,13 +21,17 @@ class Character(db.Model):
     initiative = db.Column(db.Integer, nullable=False, default=0)
     speed = db.Column(db.Integer, nullable=False, default=30)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=True)  # Nueva propiedad
+    bonus = db.Column(db.String(50), nullable=True)
 
-    def __init__(self, name, user_id, race, character_class):
+    def __init__(self, name, user_id, race, character_class, hit_points, bonus, initiative):
         self.name = name
         self.user_id = user_id
         self.race = race
         self.character_class = character_class
-        # ...inicializar otros campos necesarios...
+        self.hit_points = hit_points
+        self.bonus = bonus
+        self.initiative = initiative
+        
 
     def save(self):
         redis = Redis.from_url(current_app.config['REDIS_URL'])
@@ -39,7 +43,7 @@ class Character(db.Model):
             'level': self.level,
             'strength': self.strength,
             'dexterity': self.dexterity,
-            'constitution': self.constitution,
+            'constitution': self.constition,
             'intelligence': self.intelligence,
             'wisdom': self.wisdom,
             'charisma': self.charisma,
@@ -47,7 +51,8 @@ class Character(db.Model):
             'armor_class': self.armor_class,
             'initiative': self.initiative,
             'speed': self.speed,
-            'campaign_id': self.campaign_id
+            'campaign_id': self.campaign_id,
+            'bonus': self.bonus
         })
 
     @classmethod
@@ -72,7 +77,8 @@ class Character(db.Model):
                 armor_class=int(data.get(b'armor_class')),
                 initiative=int(data.get(b'initiative')),
                 speed=int(data.get(b'speed')),
-                campaign_id=int(data.get(b'campaign_id')) if data.get(b'campaign_id') else None
+                campaign_id=int(data.get(b'campaign_id')) if data.get(b'campaign_id') else None,
+                bonus=data.get(b'bonus').decode('utf-8') if data.get(b'bonus') else None
             )
         return None
 

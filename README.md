@@ -1,9 +1,9 @@
 # To DO:
 
--items
--fix fight.html
--fix character/list.html
--add toasts
+- items
+- fix fight.html ( permanencia de pantalla)
+- fix character/list.html (errores en el html aunque correcto funcionamiento)
+- add toasts (en CRUDS)
 
 
 # DnD Campaign Manager
@@ -209,18 +209,6 @@ Este script es útil para configurar rápidamente un entorno de desarrollo con d
   - Un combate pertenece a una campaña.
   - Puede incluir varios personajes y enemigos.
 
-<<<<<<< HEAD
-### Inventario y objetos 🏹
-- **Atributos**:
-  - `id`: ID del objeto
-  - `name`: Nombre del objeto
-  - `type`: Tipo de objeto
-  - `effects`: Efectos del objeto
-  - `quantity`: Cantidad
-- **Relaciones**:
-  - Un personaje puede tener varios objetos en su inventario.
-  - Los objetos pueden estar disponibles en una campaña (recompensas, cofres, etc.).
-=======
 ## Roles
 
 ### Máster
@@ -232,7 +220,6 @@ Este script es útil para configurar rápidamente un entorno de desarrollo con d
 - Puede crear y gestionar personajes.
 - Puede unirse a campañas públicas o a las que ha sido invitado.
 - Participa en misiones y combates definidos por el máster.
->>>>>>> dd5b41d9b5d1bdd8182a0d4285337cd176e3622e
 
 ## Roles
 

@@ -49,7 +49,7 @@
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 180px;
-            cursor: move;
+            {% if current_user.role == 'master' %}cursor: move;{% endif %}
         }
         .participant strong {
             display: block;
@@ -148,17 +148,21 @@
 
             const newParticipant = document.createElement("div");
             newParticipant.className = "participant";
+            {% if current_user.role == 'master' %}
             newParticipant.draggable = true;
             newParticipant.ondragstart = drag;
+            {% endif %}
             newParticipant.id = `participant-${document.getElementById("participants").children.length}`;
             newParticipant.innerHTML = `
                 <strong>${name}</strong>
                 <p>Total HP: ${totalHP}</p>
                 <label for="remaining-hp-${newParticipant.id}">Remaining HP:</label>
-                <input type="number" id="remaining-hp-${newParticipant.id}" value="${totalHP}" oninput="validateHP(this, ${totalHP})">
+                <input type="number" id="remaining-hp-${newParticipant.id}" value="${totalHP}" oninput="validateHP(this, ${totalHP})" {% if current_user.role != 'master' %}disabled{% endif %}>
                 <label for="bonus-${newParticipant.id}">Bonus:</label>
-                <input type="text" id="bonus-${newParticipant.id}" value="${bonus}">
+                <input type="text" id="bonus-${newParticipant.id}" value="${bonus}" {% if current_user.role != 'master' %}disabled{% endif %}>
+                {% if current_user.role == 'master' %}
                 <button class="delete-btn" onclick="deleteParticipant(${document.getElementById("participants").children.length - 1})">Delete</button>
+                {% endif %}
             `;
             document.getElementById("participants").appendChild(newParticipant);
             saveParticipants();
@@ -198,11 +202,13 @@
 
         function saveParticipants() {
             const participants = document.getElementById("participants").children;
-            const participantsData = Array.from(participants).map(participant => {
+            const participantsData = Array.from(participants).map((participant, index) => {
                 return {
                     name: participant.querySelector("strong").textContent,
                     totalHP: participant.querySelector("input[type='number']").value,
-                    bonus: participant.querySelector("input[type='text']").value
+                    remainingHP: participant.querySelector("input[type='number']").value,
+                    bonus: participant.querySelector("input[type='text']").value,
+                    order: index
                 };
             });
             fetch("{{ url_for('combats.save_participants', combat_id=combat.id) }}", {
@@ -213,6 +219,42 @@
                 body: JSON.stringify({ participants: participantsData })
             });
         }
+
+        function addParticipantFromServer(name, totalHP, remainingHP, bonus) {
+            const newParticipant = document.createElement("div");
+            newParticipant.className = "participant";
+            {% if current_user.role == 'master' %}
+            newParticipant.draggable = true;
+            newParticipant.ondragstart = drag;
+            {% endif %}
+            newParticipant.id = `participant-${document.getElementById("participants").children.length}`;
+            newParticipant.innerHTML = `
+                <strong>${name}</strong>
+                <p>Total HP: ${totalHP}</p>
+                <label for="remaining-hp-${newParticipant.id}">Remaining HP:</label>
+                <input type="number" id="remaining-hp-${newParticipant.id}" value="${remainingHP}" oninput="validateHP(this, ${totalHP})" {% if current_user.role != 'master' %}disabled{% endif %}>
+                <label for="bonus-${newParticipant.id}">Bonus:</label>
+                <input type="text" id="bonus-${newParticipant.id}" value="${bonus}" {% if current_user.role != 'master' %}disabled{% endif %}>
+                {% if current_user.role == 'master' %}
+                <button class="delete-btn" onclick="deleteParticipant(${document.getElementById("participants").children.length - 1})">Delete</button>
+                {% endif %}
+            `;
+            document.getElementById("participants").appendChild(newParticipant);
+            saveParticipants();
+        }
+
+        function fetchParticipants() {
+            fetch("{{ url_for('combats.get_participants', combat_id=combat.id) }}")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("participants").innerHTML = '';
+                    data.participants.forEach(participant => {
+                        addParticipantFromServer(participant.name, participant.totalHP, participant.remainingHP, participant.bonus);
+                    });
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchParticipants);
     </script>
 </head>
 <body>
@@ -228,7 +270,7 @@
                         <strong>{{ participant.name }}</strong>
                         <p>Total HP: {{ participant.totalHP }}</p>
                         <label for="remaining-hp-{{ loop.index }}">Remaining HP:</label>
-                        <input type="number" id="remaining-hp-{{ loop.index }}" value="{{ participant.totalHP }}" oninput="validateHP(this, {{ participant.totalHP }})" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
+                        <input type="number" id="remaining-hp-{{ loop.index }}" value="{{ participant.remainingHP }}" oninput="validateHP(this, {{ participant.totalHP }})" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
                         <label for="bonus-{{ loop.index }}">Bonus:</label>
                         <input type="text" id="bonus-{{ loop.index }}" value="{{ participant.bonus }}" {% if current_user.role != 'master' and participant.user_id != current_user.id %}disabled{% endif %}>
                         {% if current_user.role == 'master' %}
