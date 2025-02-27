@@ -2,6 +2,8 @@
 
 - items
 - Archivos con errores : operations, character/lists, fight
+- Revisar Join de Combat, hacer que si el dm elimina le resetee el boton.
+- Mensajes flash de login en otras pantallas. 
 
 
 
