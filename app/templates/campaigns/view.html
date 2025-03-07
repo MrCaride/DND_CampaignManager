@@ -1,70 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Campaign</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            text-align: center;
-        }
-        h2 {
-            margin-bottom: 20px;
-        }
-        .campaign-details {
-            text-align: left;
-        }
-        .campaign-details p {
-            margin: 5px 0;
-        }
-        .back-button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .back-button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>View Campaign</h2>
-        <div class="campaign-details">
-            <p><strong>Name:</strong> {{ campaign.name }}</p>
-            <p><strong>Master:</strong> {{ campaign.master_id }}</p>
-            <p><strong>Public:</strong> {{ 'Yes' if campaign.is_public else 'No' }}</p>
-            {% if not campaign.is_public %}
-            <p><strong>Allowed Players:</strong></p>
-            <ul>
-                {% for player in allowed_players %}
-                <li>{{ player.username }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-        <a href="{{ url_for('campaigns.list_campaigns') }}" class="back-button">Back</a>
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width: 600px;">
+    <h2>{{ campaign.name }}</h2>
+    <div class="campaign-details">
+        <p><strong>Master:</strong> {{ campaign.master_id }}</p>
+        <p><strong>Public:</strong> {{ campaign.is_public }}</p>
+        <p><strong>Allowed Players:</strong> {{ campaign.allowed_players | join(', ') }}</p>
     </div>
-</body>
-</html>
+    <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn back-button" style="margin-top: 20px; padding: 10px; background-color: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block;">Back</a>
+</div>
+{% endblock %}

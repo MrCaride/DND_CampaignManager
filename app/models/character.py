@@ -3,13 +3,14 @@ from redis import Redis
 from app import redis_client
 
 class Character:
-    def __init__(self, name, race, character_class, level, user_id=None, user_username=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None):
+    def __init__(self, name, race, character_class, level, user_id=None, user_username=None, campaign_id=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None):
         self.name = name
         self.race = race
         self.character_class = character_class
         self.level = level
         self.user_id = user_id
         self.user_username = user_username
+        self.campaign_id = campaign_id  # Añadimos el atributo campaign_id
         self.strength = strength
         self.dexterity = dexterity
         self.constitution = constitution
@@ -34,6 +35,7 @@ class Character:
                     int(character_data[b'level']),
                     int(character_data[b'user_id']),
                     character_data.get(b'user_username', b'').decode('utf-8'),  # Handle missing user_username
+                    int(character_data.get(b'campaign_id', 0)),  # Añadimos el atributo campaign_id
                     int(character_data.get(b'strength', 0)),
                     int(character_data.get(b'dexterity', 0)),
                     int(character_data.get(b'constitution', 0)),
@@ -52,8 +54,8 @@ class Character:
         return None
 
     @classmethod
-    def create(cls, name, race, character_class, level, user_id, user_username, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None):
-        character = cls(name, race, character_class, level, user_id, user_username, strength, dexterity, constitution, intelligence, wisdom, charisma, armor_class, initiative, hit_points, speed)
+    def create(cls, name, race, character_class, level, user_id, user_username, campaign_id=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None):
+        character = cls(name, race, character_class, level, user_id, user_username, campaign_id, strength, dexterity, constitution, intelligence, wisdom, charisma, armor_class, initiative, hit_points, speed)
         character_id = redis_client.incr("character_id")  # Increment character ID
         character.id = character_id
         character_data = {
@@ -63,6 +65,7 @@ class Character:
             "level": level,
             "user_id": user_id,
             "user_username": user_username,
+            "campaign_id": campaign_id if campaign_id is not None else 0,  # Añadimos el atributo campaign_id
             "strength": strength if strength is not None else 0,
             "dexterity": dexterity if dexterity is not None else 0,
             "constitution": constitution if constitution is not None else 0,

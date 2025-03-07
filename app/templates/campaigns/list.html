@@ -6,40 +6,48 @@
     <title>Manage Campaigns</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
-        .back-button {
-            margin-top: 20px;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .campaign-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
+            border-bottom: 1px solid #ddd;
         }
-        .back-button:hover {
-            background-color: #0056b3;
+        .campaign-item:last-child {
+            border-bottom: none;
         }
-        .create-button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .create-button:hover {
-            background-color: #218838;
+        .campaign-name {
+            font-weight: bold;
+            color: #333;
         }
         .button-group {
             display: flex;
-            flex-wrap: wrap;
             gap: 10px;
-            margin-top: 10px;
         }
-        .button-group .btn {
-            padding: 10px 20px;
+        .btn {
+            padding: 8px 12px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -57,12 +65,6 @@
         }
         .delete-button:hover {
             background-color: #c82333;
-        }
-        .view-button {
-            background-color: #17a2b8;
-        }
-        .view-button:hover {
-            background-color: #138496;
         }
         .join-button {
             background-color: #28a745;
@@ -82,52 +84,94 @@
         .play-button:hover {
             background-color: #0056b3;
         }
-        .campaign-item {
-            margin-bottom: 20px;
+        .view-button {
+            background-color: #17a2b8;
+        }
+        .view-button:hover {
+            background-color: #138496;
         }
         .button-container {
             text-align: center;
-            margin-top: 40px; /* Aumentar el margen superior */
+            margin-top: 20px;
+        }
+        .back-button, .create-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #fff;
+        }
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        .create-button {
+            background-color: #28a745;
+        }
+        .create-button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
-</html>
-{% extends "base.html" %}
-{% block content %}
-<div class="container">
-    <h2>Manage Campaigns</h2>
-    <ul>
-        {% for campaign in campaigns %}
-        <li class="campaign-item">
-            <strong>{{ campaign.name }}</strong>
-            <div class="button-group">
-                <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn view-button">View</a>
-                {% if current_user.role == 'master' %}
-                <a href="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}" class="btn edit-button">Edit</a>
-                <form method="POST" action="{{ url_for('campaigns.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
-                    <button type="submit" class="btn delete-button">Delete</button>
-                </form>
-                <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
-                {% else %}
-                {% set character_in_campaign = current_user.characters | selectattr('campaign_id', 'equalto', campaign.id) | list %}
-                {% if character_in_campaign %}
-                <form method="POST" action="{{ url_for('campaigns.leave_campaign', campaign_id=campaign.id) }}" style="display:inline;">
-                    <button type="submit" class="btn leave-button">Leave</button>
-                </form>
-                <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
-                {% else %}
-                <a href="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}" class="btn join-button">Join</a>
-                {% endif %}
-                {% endif %}
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-    <div class="button-container">
-        {% if current_user.role == 'master' %}
-        <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>
+<body>
+    <div class="container">
+        <h2>Manage Campaigns</h2>
+        {% if current_user.role == 'player' %}
+        <h3>Joined Campaigns</h3>
+        <ul>
+            {% for campaign_id, character in joined_campaigns.items() %}
+            {% set campaign = campaigns | selectattr('id', 'equalto', campaign_id) | first %}
+            <li class="campaign-item">
+                <span class="campaign-name">{{ campaign.name }}</span>
+                <div class="button-group">
+                    <form method="POST" action="{{ url_for('campaigns.leave_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                        <button type="submit" class="btn leave-button" onclick="console.log('Leave button clicked for campaign: {{ campaign.name }}')">Leave</button>
+                    </form>
+                    <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <h3>All Campaigns</h3>
+        <ul>
+            {% for campaign in campaigns %}
+            {% if campaign.id not in joined_campaigns %}
+            <li class="campaign-item">
+                <span class="campaign-name">{{ campaign.name }}</span>
+                <div class="button-group">
+                    <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn view-button">View</a>
+                    <a href="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}" class="btn join-button">Join</a>
+                </div>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% else %}
+        <ul>
+            {% for campaign in campaigns %}
+            <li class="campaign-item">
+                <span class="campaign-name">{{ campaign.name }}</span>
+                <div class="button-group">
+                    <a href="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}" class="btn edit-button">Edit</a>
+                    <form method="POST" action="{{ url_for('campaigns.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                        <button type="submit" class="btn delete-button">Delete</button>
+                    </form>
+                    <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn view-button">View</a>
+                    <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
         {% endif %}
-        <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
+        <div class="button-container">
+            {% if current_user.role == 'master' %}
+            <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>
+            {% endif %}
+            <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
+        </div>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>
