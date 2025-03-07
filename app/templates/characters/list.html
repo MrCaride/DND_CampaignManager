@@ -69,16 +69,18 @@
             {% for character in characters %}
             <li>
                 {{ character.name }}
-                <button class="view-button" onclick="window.location.href='{{ url_for('characters.view_character', character_id=character.id) }}'">View</button>
-                <button class="edit-button" onclick="window.location.href='{{ url_for('characters.edit_character', character_id=character.id) }}'">Edit</button>
+                <button class="view-button" onclick="window.location.href='{{ url_for('characters.view_character', character_id=character.id) }}';">View</button>
+                <button class="edit-button" onclick="window.location.href='{{ url_for('characters.edit_character', character_id=character.id) }}';">Edit</button>
                 <form method="POST" action="{{ url_for('characters.delete_character', character_id=character.id) }}" style="display:inline;">
                     <button type="submit" class="delete-button">Delete</button>
                 </form>
             </li>
+            {% else %}
+            <li>No characters found.</li> <!-- Debug statement for empty list -->
             {% endfor %}
         </ul>
-        <button class="create-button" onclick="window.location.href='{{ url_for('characters.new_character') }}'">Create Character</button>
-        <button class="back-button" onclick="window.location.href='{{ url_for('main.operations') }}'">Back</button>
+        <button class="create-button" onclick="window.location.href='{{ url_for('characters.create_character') }}';">Create Character</button>
+        <button class="back-button" onclick="window.location.href='{{ url_for('main.operations') }}';">Back</button>
     </div>
 </body>
 </html>

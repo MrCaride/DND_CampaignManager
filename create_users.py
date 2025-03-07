@@ -66,8 +66,8 @@ def create_initial_data():
 
     for character_data in characters:
         user = User.get_by_username(character_data["user_username"])
-        Character.create(character_data["name"], character_data["race"], character_data["character_class"], character_data["level"])
-        print(f"Created character: {character_data['name']}")
+        character = Character.create(character_data["name"], character_data["race"], character_data["character_class"], character_data["level"], user.id, user.username)
+        print(f"Created character: {character.name} for user: {user.username}")
 
     # Create missions
     missions = [
