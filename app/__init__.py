@@ -1,10 +1,8 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from redis import Redis
 import redis
 
-db = SQLAlchemy()
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 def create_app():
@@ -12,10 +10,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'your_secret_key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     app.config['REDIS_URL'] = 'redis://localhost:6379/0'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Agrega esta línea para suprimir la advertencia
-
-    # Initialize SQLAlchemy
-    db.init_app(app)
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
 
     # Initialize Redis
     redis = Redis.from_url(app.config['REDIS_URL'])
@@ -29,7 +24,8 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        print(f"Loading user with ID {user_id}")
+        return User.get_by_id(user_id)
 
     from .auth import auth as auth_blueprint  # Asegúrate de que la importación sea correcta
     app.register_blueprint(auth_blueprint, url_prefix='/auth')

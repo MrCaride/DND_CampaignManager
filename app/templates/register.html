@@ -75,6 +75,15 @@
         <div class="message">
             <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
         </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
     </div>
 </body>
 </html>

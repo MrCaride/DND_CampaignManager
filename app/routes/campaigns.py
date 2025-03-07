@@ -5,7 +5,6 @@ from app.models.user import User
 from app.models.character import Character
 from app.models.mission import Mission
 from app.models.combat import Combat
-from app import db
 
 campaigns_bp = Blueprint('campaigns', __name__)
 

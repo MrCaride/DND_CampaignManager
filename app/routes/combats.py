@@ -3,7 +3,6 @@ from flask_login import login_required, current_user
 from app.models.combat import Combat
 from app.models.campaign import Campaign
 from app.models.character import Character
-from app import db
 
 combats_bp = Blueprint('combats', __name__)
 
@@ -163,6 +162,20 @@ def delete_state(combat_id):
         db.session.commit()
         return jsonify({'success': True, 'message': 'Combat state reset to initial participants successfully.'})
     return jsonify({'success': False, 'message': 'Combat not found.'})
+
+@combats_bp.route('/combats', methods=['GET'])
+def list_combats():
+    combats = Combat.get_all()
+    return render_template('combats/list.html', combats=combats)
+
+@combats_bp.route('/combats/create', methods=['GET', 'POST'])
+def create_combat():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        Combat.create(name, description)
+        return redirect(url_for('combats.list_combats'))
+    return render_template('combats/create.html')
 
 @combats_bp.route('/')
 @login_required

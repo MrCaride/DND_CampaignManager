@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.mission import Mission
 from app.models.campaign import Campaign
-from app import db
 
 missions_bp = Blueprint('missions', __name__)
 

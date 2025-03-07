@@ -1,31 +1,34 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from app import redis_client
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(150), nullable=False)
-    role = db.Column(db.String(50), nullable=False)  # Agrega el campo role
-
-    def __init__(self, username, password, role):
+class User(UserMixin):
+    def __init__(self, username, password=None, role=None):
         self.username = username
-        self.set_password(password)
+        if password:
+            self.set_password(password)
         self.role = role
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+        print(f"Password hash for {self.username}: {self.password_hash}")
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        result = check_password_hash(self.password_hash, password)
+        print(f"Password check for {self.username}: {result}")
+        return result
 
     @classmethod
     def get_by_id(cls, user_id):
-        user_data = redis_client.hgetall(f"user:{user_id}")
+        user_data = redis_client.hgetall(f"user:{int(user_id)}")  # Convert user_id to int
         if user_data:
-            user = cls(user_data['username'], user_data['password_hash'], user_data['role'])
-            user.id = user_id
+            print(f"User data found for ID {user_id}: {user_data}")
+            user = cls(user_data[b'username'].decode('utf-8'))
+            user.password_hash = user_data[b'password_hash'].decode('utf-8')
+            user.role = user_data[b'role'].decode('utf-8')
+            user.id = int(user_id)  # Ensure user.id is an int
             return user
+        print(f"No user data found for ID {user_id}")
         return None
 
     @classmethod
@@ -38,13 +41,17 @@ class User(UserMixin, db.Model):
             "password_hash": user.password_hash,
             "role": role
         })
+        cls.index_username(username, user_id)
         return user
 
     @classmethod
     def get_by_username(cls, username):
         user_id = redis_client.hget("username_index", username)
         if user_id:
+            user_id = int(user_id)  # Convert user_id to int
+            print(f"User ID found for username {username}: {user_id}")
             return cls.get_by_id(user_id)
+        print(f"No user ID found for username {username}")
         return None
 
     @classmethod
