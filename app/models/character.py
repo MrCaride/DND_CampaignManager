@@ -63,16 +63,16 @@ class Character:
             "level": level,
             "user_id": user_id,
             "user_username": user_username,
-            "strength": strength,
-            "dexterity": dexterity,
-            "constitution": constitution,
-            "intelligence": intelligence,
-            "wisdom": wisdom,
-            "charisma": charisma,
-            "armor_class": armor_class,
-            "initiative": initiative,
-            "hit_points": hit_points,
-            "speed": speed
+            "strength": strength if strength is not None else 0,
+            "dexterity": dexterity if dexterity is not None else 0,
+            "constitution": constitution if constitution is not None else 0,
+            "intelligence": intelligence if intelligence is not None else 0,
+            "wisdom": wisdom if wisdom is not None else 0,
+            "charisma": charisma if charisma is not None else 0,
+            "armor_class": armor_class if armor_class is not None else 0,
+            "initiative": initiative if initiative is not None else 0,
+            "hit_points": hit_points if hit_points is not None else 0,
+            "speed": speed if speed is not None else 0
         }
         redis_client.hmset(f"character:{character_id}", character_data)
         print(f"Created character: {character.name} with ID {character.id} for user ID {user_id} and username {user_username}")

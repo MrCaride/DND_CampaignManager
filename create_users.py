@@ -26,7 +26,6 @@ def create_initial_data():
         {"username": "user3", "password": "password3", "role": "player"},
         {"username": "user4", "password": "password4", "role": "player"},
         {"username": "user5", "password": "password5", "role": "player"},
-        {"username": "master", "password": "masterpass", "role": "master"},
         {"username": "master2", "password": "masterpass2", "role": "master"},
         {"username": "master3", "password": "masterpass3", "role": "master"},
     ]
@@ -47,11 +46,7 @@ def create_initial_data():
 
     for campaign_data in campaigns:
         master = User.get_by_username(campaign_data["master_username"])
-        campaign = Campaign.create(campaign_data["name"], campaign_data["is_public"])
-        if "allowed_players" in campaign_data:
-            for username in campaign_data["allowed_players"]:
-                user = User.get_by_username(username)
-                # Add allowed players to the campaign (implement this logic as needed)
+        campaign = Campaign.create(campaign_data["name"], campaign_data["is_public"], master_id=master.id, allowed_players=campaign_data.get("allowed_players", []))
         print(f"Created campaign: {campaign.name}")
 
     # Create characters

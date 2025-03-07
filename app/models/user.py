@@ -57,3 +57,14 @@ class User(UserMixin):
     @classmethod
     def index_username(cls, username, user_id):
         redis_client.hset("username_index", username, user_id)
+
+    @classmethod
+    def get_all(cls):
+        user_ids = redis_client.keys("user:*")
+        users = []
+        for user_id in user_ids:
+            user = cls.get_by_id(user_id.split(b':')[1].decode('utf-8'))
+            if user:
+                users.append(user)
+        print(f"All users fetched: {[user.username for user in users]}")  # Debug statement
+        return users
