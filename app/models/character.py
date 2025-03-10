@@ -104,3 +104,12 @@ class Character:
         user_characters = [character for character in characters if character.user_username == user_username]
         print(f"Fetched characters for user_username {user_username}: {[(char.name, char.user_username) for char in user_characters]}")  # Debug statement
         return user_characters
+
+    @classmethod
+    def get_by_user_and_campaign(cls, user_id, campaign_id):
+        character_ids = redis_client.keys("character:*")
+        for character_id in character_ids:
+            character = cls.get_by_id(int(character_id.split(b':')[1]))
+            if character and character.user_id == user_id and character.campaign_id == campaign_id:
+                return character
+        return None

@@ -133,7 +133,7 @@
             const totalHP = participant.querySelector('.total-hp') ? participant.querySelector('.total-hp').value : participant.querySelector('span').innerText.split('/')[1].trim();
             participants.push({ name, remainingHP, totalHP });
         });
-        fetch('{{ url_for("combats.save_participants", combat_id=combat.id) }}', {
+        fetch('{{ url_for("combats.save_state", combat_id=combat.id) }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

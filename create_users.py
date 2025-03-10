@@ -77,7 +77,7 @@ def create_initial_data():
 
     for mission_data in missions:
         campaign = Campaign.get_by_name(mission_data["campaign_name"])
-        Mission.create(mission_data["name"], mission_data["description"])
+        Mission.create(mission_data["name"], mission_data["description"], mission_data["campaign_name"])
         print(f"Created mission: {mission_data['name']}")
 
     # Create combats
@@ -93,8 +93,8 @@ def create_initial_data():
 
     for combat_data in combats:
         campaign = Campaign.get_by_name(combat_data["campaign_name"])
-        Combat.create(combat_data["name"])
-        print(f"Created combat: {combat_data['name']}")
+        Combat.create(combat_data["name"], campaign.id)
+        print(f"Created combat: {combat_data['name']} for campaign: {combat_data['campaign_name']}")
 
 if __name__ == "__main__":
     create_initial_users()

@@ -64,14 +64,19 @@
                         <button type="submit" class="btn delete-button">Delete</button>
                     </form>
                     {% endif %}
-                    <form method="POST" action="{{ url_for('missions.vote_mission', mission_id=mission.id) }}" style="display:inline;">
-                        <button type="submit" class="btn vote-button">Vote</button>
-                    </form>
+                    {% if current_user.id in mission.voters %}
                     <form method="POST" action="{{ url_for('missions.unvote_mission', mission_id=mission.id) }}" style="display:inline;">
                         <button type="submit" class="btn unvote-button">Unvote</button>
                     </form>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('missions.vote_mission', mission_id=mission.id) }}" style="display:inline;">
+                        <button type="submit" class="btn vote-button">Vote</button>
+                    </form>
+                    {% endif %}
                 </div>
             </li>
+            {% else %}
+            <li>No missions found for this campaign.</li>
             {% endfor %}
         </ul>
         <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back</a>
