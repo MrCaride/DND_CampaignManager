@@ -26,10 +26,12 @@ def manage_combats(campaign_id):
     # Filter combats by campaign_id
     combat_ids = redis_client.keys("combat:*")
     combats = []
+    combat_ids_seen = set()
     for combat_id in combat_ids:
         combat = Combat.get_by_id(int(combat_id.split(b':')[1]))
-        if combat and combat.campaign_id == campaign_id:
+        if combat and combat.campaign_id == campaign_id and combat.id not in combat_ids_seen:
             combats.append(combat)
+            combat_ids_seen.add(combat.id)
     
     return render_template('combats/manage.html', campaign=campaign, combats=combats)
 
@@ -154,9 +156,11 @@ def view_combats(campaign_id):
     # Filter combats by campaign_id
     combat_ids = redis_client.keys("combat:*")
     combats = []
+    combat_ids_seen = set()
     for combat_id in combat_ids:
         combat = Combat.get_by_id(int(combat_id.split(b':')[1]))
-        if combat and combat.campaign_id == campaign_id:
+        if combat and combat.campaign_id == campaign_id and combat.id not in combat_ids_seen:
             combats.append(combat)
+            combat_ids_seen.add(combat.id)
 
     return render_template('combats/view.html', campaign=campaign, combats=combats)

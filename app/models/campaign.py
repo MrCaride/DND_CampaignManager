@@ -50,7 +50,7 @@ class Campaign:
         campaign_ids = redis_client.keys("campaign:*")
         campaigns = []
         for campaign_id in campaign_ids:
-            campaign = cls.get_by_id(campaign_id.split(b':')[1].decode('utf-8'))
+            campaign = cls.get_by_id(int(campaign_id.split(b':')[1]))
             if campaign:
                 campaigns.append(campaign)
         print(f"All campaigns fetched: {[campaign.name for campaign in campaigns]}")  # Debug statement
@@ -60,7 +60,8 @@ class Campaign:
     def get_by_name(cls, name):
         campaign_ids = redis_client.keys("campaign:*")
         for campaign_id in campaign_ids:
-            campaign_data = redis_client.hgetall(campaign_id)
-            if campaign_data and campaign_data[b'name'].decode('utf-8') == name:
-                return cls.get_by_id(campaign_id.split(b':')[1].decode('utf-8'))
+            if redis_client.type(campaign_id) == b'hash':
+                campaign_data = redis_client.hgetall(campaign_id)
+                if campaign_data and campaign_data[b'name'].decode('utf-8') == name:
+                    return cls.get_by_id(int(campaign_id.split(b':')[1]))
         return None

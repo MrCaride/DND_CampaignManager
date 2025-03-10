@@ -27,10 +27,12 @@ def manage_missions(campaign_id):
     # Filter missions by campaign_name
     mission_ids = redis_client.keys("mission:*")
     missions = []
+    mission_ids_seen = set()
     for mission_id in mission_ids:
         mission = Mission.get_by_id(int(mission_id.split(b':')[1]))
-        if mission and mission.campaign_name == campaign.name:
+        if mission and mission.campaign_name == campaign.name and mission.id not in mission_ids_seen:
             missions.append(mission)
+            mission_ids_seen.add(mission.id)
     
     return render_template('missions/manage.html', campaign=campaign, missions=missions)
 
