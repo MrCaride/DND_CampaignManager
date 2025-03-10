@@ -1,8 +1,3 @@
-# To DO:
-
-- items
-- Archivos con errores : operations, character/lists, fight
-
 
 
 # DnD Campaign Manager
