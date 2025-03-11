@@ -36,16 +36,16 @@
     .view-btn:hover {
         background-color: #0056b3;
     }
-    .join-btn {
+    .join-button {
         background-color: #28a745;
     }
-    .join-btn:hover {
+    .join-button:hover {
         background-color: #218838;
     }
-    .leave-btn {
+    .leave-button {
         background-color: #dc3545;
     }
-    .leave-btn:hover {
+    .leave-button:hover {
         background-color: #c82333;
     }
     .fight-btn {
@@ -76,34 +76,29 @@
     }
 </style>
 <div class="container">
-    <h2>View Combats for {{ campaign.name }}</h2>
+    <h2>Combats for Campaign: {{ campaign.name }}</h2>
     <ul>
         {% for combat in combats %}
         <li class="combat-item">
-            <strong>{{ combat.name }}</strong>
+            <span class="combat-name">{{ combat.name }}</span>
             <div class="button-group">
-                <a href="{{ url_for('combats.view_combat', combat_id=combat.id) }}" class="btn view-btn">View</a>
-                {% set character_in_combat = current_user.characters | selectattr('id', 'in', combat.participants | map(attribute='id') | list) | list %}
+                {% set character_in_combat = characters | selectattr('id', 'in', combat.participants) | list %}
                 {% if character_in_combat %}
                 <form method="POST" action="{{ url_for('combats.leave_combat', combat_id=combat.id) }}" style="display:inline;">
-                    <button type="submit" class="btn leave-btn">Leave</button>
+                    <button type="submit" class="btn leave-button">Leave</button>
                 </form>
-                <a href="{{ url_for('combats.fight_combat', combat_id=combat.id) }}" class="btn fight-btn">Fight</a>
+                <a href="{{ url_for('combats.start_fight_combat', combat_id=combat.id) }}" class="btn fight-btn">Fight</a>
                 {% else %}
-                {% if current_user.characters | selectattr('campaign_id', 'equalto', campaign.id) | list %}
                 <form method="POST" action="{{ url_for('combats.join_combat', combat_id=combat.id) }}" style="display:inline;">
-                    {% set character = current_user.characters | selectattr('campaign_id', 'equalto', campaign.id) | first %}
-                    <input type="hidden" name="character_id" value="{{ character.id }}">
-                    <button type="submit" class="btn join-btn">Join</button>
+                    <button type="submit" class="btn join-button">Join</button>
                 </form>
-                {% else %}
-                <p>No characters available to join the combat.</p>
-                {% endif %}
                 {% endif %}
             </div>
         </li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back</a>
+    <div class="button-container">
+        <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back to Campaign</a>
+    </div>
 </div>
 {% endblock %}

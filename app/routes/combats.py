@@ -72,11 +72,18 @@ def delete_combat(combat_id):
 def join_combat(combat_id):
     combat = Combat.get_by_id(combat_id)
     campaign = Campaign.get_by_id(combat.campaign_id)
-    character = Character.get_by_user_and_campaign(current_user.id, campaign.id)
+    character = Character.get_by_user_and_campaign(current_user.id, campaign.name)
     if character:
-        combat.add_participant(character)
-        flash('Joined combat successfully!', 'success')
+        if character.id not in combat.participants:
+            combat.add_participant(character)
+            redis_client.sadd(f"combat:{combat_id}:participants", character.id)
+            print(f"Character {character.name} joined combat {combat.name}")  # Debug statement
+            flash('Joined combat successfully!', 'success')
+        else:
+            print(f"Character {character.name} is already in the combat {combat.name}")  # Debug statement
+            flash('Character is already in the combat.', 'warning')
     else:
+        print(f"Failed to join combat {combat.name} for character {character.name}")  # Debug statement
         flash('Failed to join combat.', 'danger')
     return redirect(url_for('combats.view_combats', campaign_id=campaign.id))
 
@@ -85,11 +92,18 @@ def join_combat(combat_id):
 def leave_combat(combat_id):
     combat = Combat.get_by_id(combat_id)
     campaign = Campaign.get_by_id(combat.campaign_id)
-    character = Character.get_by_user_and_campaign(current_user.id, campaign.id)
+    character = Character.get_by_user_and_campaign(current_user.id, campaign.name)
     if character:
-        combat.remove_participant(character)
-        flash('Left combat successfully!', 'success')
+        if character.id in combat.participants:
+            combat.remove_participant(character)
+            redis_client.srem(f"combat:{combat_id}:participants", character.id)
+            print(f"Character {character.name} left combat {combat.name}")  # Debug statement
+            flash('Left combat successfully!', 'success')
+        else:
+            print(f"Character {character.name} is not in the combat {combat.name}")  # Debug statement
+            flash('Character is not in the combat.', 'warning')
     else:
+        print(f"Failed to leave combat {combat.name} for character {character.name}")  # Debug statement
         flash('Failed to leave combat.', 'danger')
     return redirect(url_for('combats.view_combats', campaign_id=campaign.id))
 
@@ -149,18 +163,20 @@ def list_combats():
 @login_required
 def view_combats(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
-    if not campaign:
-        flash('Campaign not found', 'danger')
-        return redirect(url_for('campaigns.list_campaigns'))
+    combats = Combat.get_all_by_campaign(campaign_id)
+    characters = Character.get_by_username(current_user.username)
+    # Ensure each combat has unique participants
+    for combat in combats:
+        combat.participants = list(set(combat.participants))
+        print(f"Combat {combat.name} participants: {combat.participants}")  # Debug statement
+    return render_template('combats/view_combats.html', campaign=campaign, combats=combats, characters=characters)
 
-    # Filter combats by campaign_id
-    combat_ids = redis_client.keys("combat:*")
-    combats = []
-    combat_ids_seen = set()
-    for combat_id in combat_ids:
-        combat = Combat.get_by_id(int(combat_id.split(b':')[1]))
-        if combat and combat.campaign_id == campaign_id and combat.id not in combat_ids_seen:
-            combats.append(combat)
-            combat_ids_seen.add(combat.id)
-
-    return render_template('combats/view.html', campaign=campaign, combats=combats)
+@combats_bp.route('/<int:combat_id>/start_fight', methods=['GET'])
+@login_required
+def start_fight_combat(combat_id):
+    combat = Combat.get_by_id(combat_id)
+    campaign = Campaign.get_by_id(combat.campaign_id)
+    participants_data = redis_client.hget(f"combat:{combat_id}", "participants_data")
+    if participants_data is None:
+        participants_data = []
+    return render_template('combats/fight.html', combat=combat, campaign=campaign, participants_data=participants_data)

@@ -148,14 +148,17 @@ def play_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
-    character_ids = redis_client.smembers(f"campaign:{campaign_id}:characters")
-    characters = [Character.get_by_id(character_id.decode('utf-8')) for character_id in character_ids]
+    # Obtener todos los personajes y filtrar por la campaña actual
+    characters = Character.get_all()
+    campaign_characters = [character for character in characters if character.campaign == campaign.name]
+    print(f"Characters in this campaign: {[(char.name, char.user_username) for char in campaign_characters]}")  # Debug statement
+
     missions = Mission.get_all()
     combats = Combat.get_all()
     if current_user.role == 'master':
-        return render_template('campaigns/play_master.html', campaign=campaign, characters=characters, missions=missions, combats=combats)
+        return render_template('campaigns/play_master.html', campaign=campaign, characters=campaign_characters, missions=missions, combats=combats)
     else:
-        return render_template('campaigns/play_player.html', campaign=campaign, characters=characters, missions=missions, combats=combats)
+        return render_template('campaigns/play_player.html', campaign=campaign, characters=campaign_characters, missions=missions, combats=combats)
 
 @campaigns_bp.route('/operations_master/<int:campaign_id>', methods=['GET'])
 @login_required
