@@ -20,11 +20,11 @@ def list_campaigns():
         print(f"Player {current_user.username} campaigns: {[campaign.name for campaign in campaigns]}")  # Debug statement
 
     user_characters = Character.get_by_username(current_user.username)
-    joined_campaigns = {character.campaign_id: character for character in user_characters if character.campaign_id}
+    joined_campaigns = {character.campaign: character for character in user_characters if character.campaign}
     print(f"User {current_user.username} joined campaigns: {joined_campaigns}")  # Debug statement
 
     # Ensure joined_campaigns only contains campaigns the user is actually part of
-    joined_campaigns = {campaign_id: character for campaign_id, character in joined_campaigns.items() if campaign_id in [campaign.id for campaign in campaigns]}
+    joined_campaigns = {campaign_name: character for campaign_name, character in joined_campaigns.items() if campaign_name in [campaign.name for campaign in campaigns]}
     print(f"Filtered joined campaigns: {joined_campaigns}")  # Debug statement
 
     return render_template('campaigns/list.html', campaigns=campaigns, joined_campaigns=joined_campaigns)
@@ -102,17 +102,12 @@ def join_campaign(campaign_id):
         character = Character.get_by_id(character_id)
         if character and character.user_id == current_user.id:
             # Ensure the character is not already in another campaign
-            for other_campaign in Campaign.get_all():
-                if character_id in redis_client.smembers(f"campaign:{other_campaign.id}:characters"):
-                    flash('This character is already in another campaign.', 'danger')
-                    return redirect(url_for('campaigns.list_campaigns'))
+            if character.campaign:
+                flash('This character is already in another campaign.', 'danger')
+                return redirect(url_for('campaigns.list_campaigns'))
             # Add character to campaign logic
-            if current_user.username not in campaign.allowed_players:
-                campaign.allowed_players.append(current_user.username)
-            redis_client.hset(f"campaign:{campaign_id}", "allowed_players", ','.join(campaign.allowed_players))
-            redis_client.sadd(f"campaign:{campaign_id}:characters", character_id)
-            redis_client.hset(f"character:{character_id}", "campaign_id", campaign_id)  # Añadimos el campaign_id al personaje
-            print(f"Character {character.name} joined campaign {campaign.name}")  # Debug statement
+            character.campaign = campaign.name
+            redis_client.hset(f"character:{character_id}", "campaign", campaign.name)
             flash('Joined campaign successfully!', 'success')
         else:
             flash('You do not have permission to join this campaign with this character.', 'danger')
@@ -129,16 +124,17 @@ def leave_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
-    if current_user.username in campaign.allowed_players:
-        campaign.allowed_players.remove(current_user.username)
-        redis_client.hset(f"campaign:{campaign_id}", "allowed_players", ','.join(campaign.allowed_players))
-        character_ids = redis_client.smembers(f"campaign:{campaign_id}:characters")
-        for character_id in character_ids:
-            character = Character.get_by_id(character_id.decode('utf-8'))
-            if character and character.user_id == current_user.id:
-                redis_client.srem(f"campaign:{campaign_id}:characters", character_id)
-                redis_client.hdel(f"character:{character_id}", "campaign_id")
-        flash('Left campaign successfully!', 'success')
+    character_ids = redis_client.keys("character:*")
+    for character_id in character_ids:
+        character_id = character_id.decode('utf-8').split(':')[1]  # Decode and split the character_id
+        character = Character.get_by_id(int(character_id))
+        if character and character.user_id == current_user.id and character.campaign == campaign.name:
+            character.campaign = None
+            character.campaign_id = None
+            redis_client.hset(f"character:{character_id}", "campaign", '')
+            redis_client.hset(f"character:{character_id}", "campaign_id", 0)
+            flash('Left campaign successfully!', 'success')
+            break
     else:
         flash('You are not part of this campaign.', 'danger')
     

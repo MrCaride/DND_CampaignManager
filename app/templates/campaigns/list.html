@@ -113,26 +113,25 @@
 </style>
 <div class="container">
     <h2>Manage Campaigns</h2>
-    {% if current_user.role == 'player' %}
     <h3>Joined Campaigns</h3>
     <ul>
-        {% for campaign_id, character in joined_campaigns.items() %}
-        {% set campaign = campaigns | selectattr('id', 'equalto', campaign_id) | first %}
+        {% for campaign_name, character in joined_campaigns.items() %}
+        {% set campaign = campaigns | selectattr('name', 'equalto', campaign_name) | first %}
         <li class="campaign-item">
             <span class="campaign-name">{{ campaign.name }}</span>
             <div class="button-group">
                 <form method="POST" action="{{ url_for('campaigns.leave_campaign', campaign_id=campaign.id) }}" style="display:inline;">
-                    <button type="submit" class="btn leave-button" onclick="console.log('Leave button clicked for campaign: {{ campaign.name }}')">Leave</button>
+                    <button type="submit" class="btn leave-button">Leave</button>
                 </form>
                 <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
             </div>
         </li>
         {% endfor %}
     </ul>
-    <h3>All Campaigns</h3>
+    <h3>Available Campaigns</h3>
     <ul>
         {% for campaign in campaigns %}
-        {% if campaign.id not in joined_campaigns %}
+        {% if campaign.name not in joined_campaigns %}
         <li class="campaign-item">
             <span class="campaign-name">{{ campaign.name }}</span>
             <div class="button-group">
@@ -143,23 +142,6 @@
         {% endif %}
         {% endfor %}
     </ul>
-    {% else %}
-    <ul>
-        {% for campaign in campaigns %}
-        <li class="campaign-item">
-            <span class="campaign-name">{{ campaign.name }}</span>
-            <div class="button-group">
-                <a href="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}" class="btn edit-button">Edit</a>
-                <form method="POST" action="{{ url_for('campaigns.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
-                    <button type="submit" class="btn delete-button">Delete</button>
-                </form>
-                <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn view-button">View</a>
-                <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
     <div class="button-container">
         {% if current_user.role == 'master' %}
         <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>

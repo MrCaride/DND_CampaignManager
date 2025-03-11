@@ -3,7 +3,7 @@ from redis import Redis
 from app import redis_client
 
 class Character:
-    def __init__(self, name, race, character_class, level, user_id=None, user_username=None, campaign_id=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None):
+    def __init__(self, name, race, character_class, level, user_id=None, user_username=None, campaign_id=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None, campaign=None):
         self.name = name
         self.race = race
         self.character_class = character_class
@@ -21,12 +21,13 @@ class Character:
         self.initiative = initiative
         self.hit_points = hit_points
         self.speed = speed
+        self.campaign = campaign  # Añadimos el atributo campaign
 
     @classmethod
     def get_by_id(cls, character_id):
         character_data = redis_client.hgetall(f"character:{character_id}")
         print(f"Fetched data for character ID {character_id}: {character_data}")  # Debug statement
-        if character_data:
+        if (character_data):
             try:
                 character = cls(
                     character_data[b'name'].decode('utf-8'),
@@ -45,7 +46,8 @@ class Character:
                     int(character_data.get(b'armor_class', 0)),
                     int(character_data.get(b'initiative', 0)),
                     int(character_data.get(b'hit_points', 0)),
-                    int(character_data.get(b'speed', 0))
+                    int(character_data.get(b'speed', 0)),
+                    character_data.get(b'campaign', None).decode('utf-8') if character_data.get(b'campaign') else None  # Añadimos el atributo campaign
                 )
                 character.id = int(character_id)
                 return character
@@ -54,8 +56,8 @@ class Character:
         return None
 
     @classmethod
-    def create(cls, name, race, character_class, level, user_id, user_username, campaign_id=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None):
-        character = cls(name, race, character_class, level, user_id, user_username, campaign_id, strength, dexterity, constitution, intelligence, wisdom, charisma, armor_class, initiative, hit_points, speed)
+    def create(cls, name, race, character_class, level, user_id, user_username, campaign_id=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None, campaign=None):
+        character = cls(name, race, character_class, level, user_id, user_username, campaign_id, strength, dexterity, constitution, intelligence, wisdom, charisma, armor_class, initiative, hit_points, speed, campaign)
         character_id = redis_client.incr("character_id")  # Increment character ID
         character.id = character_id
         character_data = {
@@ -75,7 +77,8 @@ class Character:
             "armor_class": armor_class if armor_class is not None else 0,
             "initiative": initiative if initiative is not None else 0,
             "hit_points": hit_points if hit_points is not None else 0,
-            "speed": speed if speed is not None else 0
+            "speed": speed if speed is not None else 0,
+            "campaign": character.campaign if character.campaign else ''  # Añadimos el atributo campaign
         }
         redis_client.hmset(f"character:{character_id}", character_data)
         print(f"Created character: {character.name} with ID {character.id} for user ID {user_id} and username {user_username}")
@@ -91,7 +94,8 @@ class Character:
         print(f"Character IDs fetched: {character_ids}")  # Debug statement
         characters = []
         for character_id in character_ids:
-            character = cls.get_by_id(character_id.split(b':')[1].decode('utf-8'))  # Decode character_id
+            character_id = character_id.decode('utf-8').split(':')[1]  # Decode and split the character_id
+            character = cls.get_by_id(int(character_id))
             if character:
                 characters.append(character)
         print(f"All characters fetched: {[(char.name, char.user_username) for char in characters]}")  # Debug statement
@@ -100,16 +104,15 @@ class Character:
     @classmethod
     def get_by_username(cls, user_username):
         characters = cls.get_all()
-        print(f"Characters fetched for user_username {user_username}: {[(char.name, char.user_username) for char in characters]}")  # Debug statement
         user_characters = [character for character in characters if character.user_username == user_username]
         print(f"Fetched characters for user_username {user_username}: {[(char.name, char.user_username) for char in user_characters]}")  # Debug statement
         return user_characters
 
     @classmethod
-    def get_by_user_and_campaign(cls, user_id, campaign_id):
+    def get_by_user_and_campaign(cls, user_id, campaign_name):
         character_ids = redis_client.keys("character:*")
         for character_id in character_ids:
             character = cls.get_by_id(int(character_id.split(b':')[1]))
-            if character and character.user_id == user_id and character.campaign_id == campaign_id:
+            if character and character.user_id == user_id and character.campaign == campaign_name:
                 return character
         return None
