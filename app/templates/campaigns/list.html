@@ -113,6 +113,27 @@
 </style>
 <div class="container">
     <h2>Manage Campaigns</h2>
+    {% if current_user.role == 'master' %}
+    <ul>
+        {% for campaign in campaigns %}
+        <li class="campaign-item">
+            <span class="campaign-name">{{ campaign.name }}</span>
+            <div class="button-group">
+                <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn view-button">View</a>
+                <a href="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}" class="btn edit-button">Edit</a>
+                <form method="POST" action="{{ url_for('campaigns.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                    <button type="submit" class="btn delete-button">Delete</button>
+                </form>
+                <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn play-button">Play</a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="button-container">
+        <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>
+        <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
+    </div>
+    {% else %}
     <h3>Joined Campaigns</h3>
     <ul>
         {% for campaign_name, character in joined_campaigns.items() %}
@@ -143,10 +164,8 @@
         {% endfor %}
     </ul>
     <div class="button-container">
-        {% if current_user.role == 'master' %}
-        <a href="{{ url_for('campaigns.create_campaign') }}" class="create-button">Create Campaign</a>
-        {% endif %}
         <a href="{{ url_for('main.operations') }}" class="back-button">Back</a>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
