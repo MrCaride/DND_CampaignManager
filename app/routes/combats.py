@@ -180,3 +180,11 @@ def start_fight_combat(combat_id):
     if participants_data is None:
         participants_data = []
     return render_template('combats/fight.html', combat=combat, campaign=campaign, participants_data=participants_data)
+
+@combats_bp.route('/<int:combat_id>/view', methods=['GET'])
+@login_required
+def view_combat(combat_id):
+    combat = Combat.get_by_id(combat_id)
+    campaign = Campaign.get_by_id(combat.campaign_id)
+    participants = [Character.get_by_id(participant_id) for participant_id in combat.participants]
+    return render_template('combats/view_combat.html', combat=combat, campaign=campaign, participants=participants)

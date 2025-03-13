@@ -1,3 +1,4 @@
+import random
 from app import create_app, redis_client
 from app.models.user import User
 from app.models.character import Character
@@ -73,12 +74,16 @@ def create_initial_data():
         {"name": "Battle of Geonosis", "description": "Fight in the Battle of Geonosis.", "campaign_name": "El ataque de los clones"},
         {"name": "Find the Ark of the Covenant", "description": "Locate and retrieve the Ark of the Covenant.", "campaign_name": "Raiders of the Lost Ark"},
         {"name": "Rescue Henry Jones Sr.", "description": "Rescue Indiana's father from the Nazis.", "campaign_name": "The Last Crusade"},
+        {"name": "Journey to Rivendell", "description": "Travel to Rivendell to seek counsel.", "campaign_name": "La comunidad del anillo"},
+        {"name": "Ambush at Amon Hen", "description": "Defend against the ambush at Amon Hen.", "campaign_name": "La comunidad del anillo"},
+        {"name": "Escape from Moria", "description": "Escape the mines of Moria.", "campaign_name": "La comunidad del anillo"},
     ]
 
     for mission_data in missions:
         campaign = Campaign.get_by_name(mission_data["campaign_name"])
-        Mission.create(mission_data["name"], mission_data["description"], mission_data["campaign_name"])
-        print(f"Created mission: {mission_data['name']}")
+        rewards = random.randint(50, 500)  # Generar un número aleatorio para las recompensas
+        Mission.create(mission_data["name"], mission_data["description"], mission_data["campaign_name"], rewards)
+        print(f"Created mission: {mission_data['name']} with rewards: {rewards}")
 
     # Create combats
     combats = [
@@ -89,6 +94,9 @@ def create_initial_data():
         {"name": "Battle of Hoth", "campaign_name": "El ataque de los clones"},
         {"name": "Fight in the Temple of Doom", "campaign_name": "Raiders of the Lost Ark"},
         {"name": "Battle at the Canyon of the Crescent Moon", "campaign_name": "The Last Crusade"},
+        {"name": "Skirmish at Weathertop", "campaign_name": "La comunidad del anillo"},
+        {"name": "Siege of Minas Tirith", "campaign_name": "El retorno del rey"},
+        {"name": "Clash on the Death Star", "campaign_name": "El ataque de los clones"},
     ]
 
     for combat_data in combats:
