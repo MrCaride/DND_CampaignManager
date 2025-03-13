@@ -3,7 +3,7 @@ from app.models.user import User
 from app.models.character import Character
 from app.models.campaign import Campaign
 from app.models.mission import Mission
-from app.models.combat import Combat
+import random
 
 app = create_app()
 
@@ -73,28 +73,17 @@ def create_initial_data():
         {"name": "Battle of Geonosis", "description": "Fight in the Battle of Geonosis.", "campaign_name": "El ataque de los clones"},
         {"name": "Find the Ark of the Covenant", "description": "Locate and retrieve the Ark of the Covenant.", "campaign_name": "Raiders of the Lost Ark"},
         {"name": "Rescue Henry Jones Sr.", "description": "Rescue Indiana's father from the Nazis.", "campaign_name": "The Last Crusade"},
+        {"name": "Journey to Rivendell", "description": "Travel to Rivendell to seek counsel.", "campaign_name": "La comunidad del anillo"},
+        {"name": "Ambush at Amon Hen", "description": "Defend against the ambush at Amon Hen.", "campaign_name": "La comunidad del anillo"},
+        {"name": "Escape from Moria", "description": "Escape the mines of Moria.", "campaign_name": "La comunidad del anillo"},
     ]
 
     for mission_data in missions:
         campaign = Campaign.get_by_name(mission_data["campaign_name"])
-        Mission.create(mission_data["name"], mission_data["description"], mission_data["campaign_name"])
-        print(f"Created mission: {mission_data['name']}")
+        rewards = random.randint(50, 500)  # Generar un número aleatorio para las recompensas
+        Mission.create(mission_data["name"], mission_data["description"], mission_data["campaign_name"], rewards)
+        print(f"Created mission: {mission_data['name']} with rewards: {rewards}")
 
-    # Create combats
-    combats = [
-        {"name": "Battle of Helm's Deep", "campaign_name": "Las dos torres"},
-        {"name": "Battle of Pelennor Fields", "campaign_name": "Las dos torres"},
-        {"name": "Duel on Mustafar", "campaign_name": "La amenaza fantasma"},
-        {"name": "Battle of Endor", "campaign_name": "El ataque de los clones"},
-        {"name": "Battle of Hoth", "campaign_name": "El ataque de los clones"},
-        {"name": "Fight in the Temple of Doom", "campaign_name": "Raiders of the Lost Ark"},
-        {"name": "Battle at the Canyon of the Crescent Moon", "campaign_name": "The Last Crusade"},
-    ]
-
-    for combat_data in combats:
-        campaign = Campaign.get_by_name(combat_data["campaign_name"])
-        Combat.create(combat_data["name"], campaign.id)
-        print(f"Created combat: {combat_data['name']} for campaign: {combat_data['campaign_name']}")
 
 if __name__ == "__main__":
     create_initial_users()

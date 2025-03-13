@@ -32,13 +32,11 @@ def create_app():
 
     from .routes.characters import characters_bp as characters_blueprint
     from .routes.campaigns import campaigns_bp as campaigns_blueprint
-    from .routes.combats import combats_bp as combats_blueprint
     from .routes.missions import missions_bp as missions_blueprint  # Importa el blueprint de misiones
     from .routes import main as main_blueprint  # Importa el blueprint principal
 
     app.register_blueprint(characters_blueprint, url_prefix='/characters')
     app.register_blueprint(campaigns_blueprint, url_prefix='/campaigns')
-    app.register_blueprint(combats_blueprint, url_prefix='/combats')
     app.register_blueprint(missions_blueprint, url_prefix='/missions')  # Registra el blueprint de misiones
     app.register_blueprint(main_blueprint)  # Registra el blueprint principal
 

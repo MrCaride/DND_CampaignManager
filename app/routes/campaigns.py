@@ -4,7 +4,6 @@ from app.models.campaign import Campaign
 from app.models.user import User
 from app.models.character import Character
 from app.models.mission import Mission
-from app.models.combat import Combat
 from app import redis_client
 
 campaigns_bp = Blueprint('campaigns', __name__)
@@ -154,11 +153,10 @@ def play_campaign(campaign_id):
     print(f"Characters in this campaign: {[(char.name, char.user_username) for char in campaign_characters]}")  # Debug statement
 
     missions = Mission.get_all()
-    combats = Combat.get_all()
     if current_user.role == 'master':
-        return render_template('campaigns/play_master.html', campaign=campaign, characters=campaign_characters, missions=missions, combats=combats)
+        return render_template('campaigns/play_master.html', campaign=campaign, characters=campaign_characters, missions=missions)
     else:
-        return render_template('campaigns/play_player.html', campaign=campaign, characters=campaign_characters, missions=missions, combats=combats)
+        return render_template('campaigns/play_player.html', campaign=campaign, characters=campaign_characters, missions=missions)
 
 @campaigns_bp.route('/operations_master/<int:campaign_id>', methods=['GET'])
 @login_required

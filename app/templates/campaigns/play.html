@@ -44,10 +44,8 @@
         <div class="operations">
             {% if current_user.role == 'master' %}
             <a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="btn btn-primary">Manage Missions</a>
-            <a href="{{ url_for('combats.manage_combats', campaign_id=campaign.id) }}" class="btn btn-primary">Manage Combats</a>
             {% else %}
             <a href="{{ url_for('missions.view_missions', campaign_id=campaign.id) }}" class="btn btn-primary">View Missions</a>
-            <a href="{{ url_for('combats.view_combats', campaign_id=campaign.id) }}" class="btn btn-primary">View Combats</a>
             {% endif %}
         </div>
     </div>

@@ -18,12 +18,12 @@ def create_app():
     from app.routes.auth import auth_bp as auth_blueprint
     from app.routes.characters import characters_bp as characters_blueprint
     from app.routes.campaigns import campaigns_bp as campaigns_blueprint
-    from app.routes.combats import combats_bp as combats_blueprint
+
 
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(characters_blueprint, url_prefix='/characters')
     app.register_blueprint(campaigns_blueprint, url_prefix='/campaigns')
-    app.register_blueprint(combats_blueprint, url_prefix='/combats')
+
 
     @app.route('/')
     def index():

@@ -23,7 +23,6 @@ dnd-campaign-manager
 │   │   ├── auth.py
 │   │   ├── characters.py
 │   │   ├── campaigns.py
-│   │   ├── combats.py
 │   │   └── missions.py
 │   ├── templates
 │   │   ├── auth
@@ -42,7 +41,6 @@ dnd-campaign-manager
 │   │   │   ├── view.html
 │   │   │   ├── operations_master.html
 │   │   │   └── operations_player.html
-│   │   ├── combats
 │   │   │   ├── manage.html
 │   │   │   └── view.html
 │   │   ├── missions
@@ -75,13 +73,11 @@ dnd-campaign-manager
     - **auth.py**: Rutas de autenticación.
     - **characters.py**: Rutas de personajes.
     - **campaigns.py**: Rutas de campañas.
-    - **combats.py**: Rutas de combates.
     - **missions.py**: Rutas de misiones.
   - **templates**: Contiene las plantillas HTML.
     - **auth**: Plantillas de autenticación.
     - **characters**: Plantillas de personajes.
     - **campaigns**: Plantillas de campañas.
-    - **combats**: Plantillas de combates.
     - **missions**: Plantillas de misiones.
     - **index.html**: Plantilla de la página principal.
   - **static**: Contiene archivos estáticos como CSS.
