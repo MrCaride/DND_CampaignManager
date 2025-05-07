@@ -1,118 +1,64 @@
-from flask import current_app
-from redis import Redis
-from app import redis_client
+from app import db
+from sirope import OID
 
 class Character:
-    def __init__(self, name, race, character_class, level, user_id=None, user_username=None, campaign_id=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None, campaign=None):
+    def __init__(self, name, race, character_class, level, user_id=None, user_username=None, campaign_id=None, 
+                 strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, 
+                 charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None, campaign=None):
         self.name = name
         self.race = race
         self.character_class = character_class
-        self.level = level
+        self.level = int(level) if level else 1
         self.user_id = user_id
         self.user_username = user_username
-        self.campaign_id = campaign_id  # Añadimos el atributo campaign_id
-        self.strength = strength
-        self.dexterity = dexterity
-        self.constitution = constitution
-        self.intelligence = intelligence
-        self.wisdom = wisdom
-        self.charisma = charisma
-        self.armor_class = armor_class
-        self.initiative = initiative
-        self.hit_points = hit_points
-        self.speed = speed
-        self.campaign = campaign  # Añadimos el atributo campaign
+        self.campaign_id = campaign_id
+        self.strength = int(strength) if strength else 10
+        self.dexterity = int(dexterity) if dexterity else 10
+        self.constitution = int(constitution) if constitution else 10
+        self.intelligence = int(intelligence) if intelligence else 10
+        self.wisdom = int(wisdom) if wisdom else 10
+        self.charisma = int(charisma) if charisma else 10
+        self.armor_class = int(armor_class) if armor_class else 10
+        self.initiative = int(initiative) if initiative else 0
+        self.hit_points = int(hit_points) if hit_points else 10
+        self.speed = int(speed) if speed else 30
+        self.campaign = campaign
+        self._id = None
+
+    @property
+    def id(self):
+        return str(self._id) if self._id else None
 
     @classmethod
     def get_by_id(cls, character_id):
-        character_data = redis_client.hgetall(f"character:{character_id}")
-        print(f"Fetched data for character ID {character_id}: {character_data}")  # Debug statement
-        if (character_data):
-            try:
-                character = cls(
-                    character_data[b'name'].decode('utf-8'),
-                    character_data[b'race'].decode('utf-8'),
-                    character_data[b'character_class'].decode('utf-8'),
-                    int(character_data[b'level']),
-                    int(character_data[b'user_id']),
-                    character_data.get(b'user_username', b'').decode('utf-8'),  # Handle missing user_username
-                    int(character_data.get(b'campaign_id', 0)),  # Añadimos el atributo campaign_id
-                    int(character_data.get(b'strength', 0)),
-                    int(character_data.get(b'dexterity', 0)),
-                    int(character_data.get(b'constitution', 0)),
-                    int(character_data.get(b'intelligence', 0)),
-                    int(character_data.get(b'wisdom', 0)),
-                    int(character_data.get(b'charisma', 0)),
-                    int(character_data.get(b'armor_class', 0)),
-                    int(character_data.get(b'initiative', 0)),
-                    int(character_data.get(b'hit_points', 0)),
-                    int(character_data.get(b'speed', 0)),
-                    character_data.get(b'campaign', None).decode('utf-8') if character_data.get(b'campaign') else None  # Añadimos el atributo campaign
-                )
-                character.id = int(character_id)
+        try:
+            oid = OID.from_str(character_id)
+            character = db.load(oid)
+            if isinstance(character, cls):
                 return character
-            except Exception as e:
-                print(f"Error decoding character data for ID {character_id}: {e}")  # Debug statement
+        except:
+            pass
         return None
 
     @classmethod
-    def create(cls, name, race, character_class, level, user_id, user_username, campaign_id=None, strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None, campaign=None):
-        character = cls(name, race, character_class, level, user_id, user_username, campaign_id, strength, dexterity, constitution, intelligence, wisdom, charisma, armor_class, initiative, hit_points, speed, campaign)
-        character_id = redis_client.incr("character_id")  # Increment character ID
-        character.id = character_id
-        character_data = {
-            "name": name,
-            "race": race,
-            "character_class": character_class,
-            "level": level,
-            "user_id": user_id,
-            "user_username": user_username,
-            "campaign_id": campaign_id if campaign_id is not None else 0,  # Añadimos el atributo campaign_id
-            "strength": strength if strength is not None else 0,
-            "dexterity": dexterity if dexterity is not None else 0,
-            "constitution": constitution if constitution is not None else 0,
-            "intelligence": intelligence if intelligence is not None else 0,
-            "wisdom": wisdom if wisdom is not None else 0,
-            "charisma": charisma if charisma is not None else 0,
-            "armor_class": armor_class if armor_class is not None else 0,
-            "initiative": initiative if initiative is not None else 0,
-            "hit_points": hit_points if hit_points is not None else 0,
-            "speed": speed if speed is not None else 0,
-            "campaign": character.campaign if character.campaign else ''  # Añadimos el atributo campaign
-        }
-        redis_client.hmset(f"character:{character_id}", character_data)
-        print(f"Created character: {character.name} with ID {character.id} for user ID {user_id} and username {user_username}")
-        print(f"Character data saved: {character_data}")  # Debug statement
-        # Verify that the data was saved correctly
-        saved_data = redis_client.hgetall(f"character:{character_id}")
-        print(f"Saved data for character ID {character_id}: {saved_data}")  # Debug statement
+    def create(cls, name, race, character_class, level, user_id, user_username, campaign_id=None, 
+              strength=None, dexterity=None, constitution=None, intelligence=None, wisdom=None, 
+              charisma=None, armor_class=None, initiative=None, hit_points=None, speed=None, campaign=None):
+        character = cls(name, race, character_class, level, user_id, user_username, campaign_id,
+                      strength, dexterity, constitution, intelligence, wisdom, charisma,
+                      armor_class, initiative, hit_points, speed, campaign)
+        oid = db.save(character)
+        character._id = oid
         return character
 
     @classmethod
     def get_all(cls):
-        character_ids = redis_client.keys("character:*")
-        print(f"Character IDs fetched: {character_ids}")  # Debug statement
-        characters = []
-        for character_id in character_ids:
-            character_id = character_id.decode('utf-8').split(':')[1]  # Decode and split the character_id
-            character = cls.get_by_id(int(character_id))
-            if character:
-                characters.append(character)
-        print(f"All characters fetched: {[(char.name, char.user_username) for char in characters]}")  # Debug statement
-        return characters
+        return list(db.load_all(cls))
 
     @classmethod
     def get_by_username(cls, user_username):
-        characters = cls.get_all()
-        user_characters = [character for character in characters if character.user_username == user_username]
-        print(f"Fetched characters for user_username {user_username}: {[(char.name, char.user_username) for char in user_characters]}")  # Debug statement
-        return user_characters
+        return list(db.filter(cls, lambda char: char.user_username == user_username))
 
     @classmethod
     def get_by_user_and_campaign(cls, user_id, campaign_name):
-        character_ids = redis_client.keys("character:*")
-        for character_id in character_ids:
-            character = cls.get_by_id(int(character_id.split(b':')[1]))
-            if character and character.user_id == user_id and character.campaign == campaign_name:
-                return character
-        return None
+        return db.find_first(cls, lambda char: char.user_id == user_id and char.campaign == campaign_name)

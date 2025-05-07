@@ -1,4 +1,5 @@
-from app import redis_client
+from app import db
+from sirope import OID
 
 class Mission:
     def __init__(self, name, description, campaign_name, rewards=None, votes=0, voters=None):
@@ -8,60 +9,48 @@ class Mission:
         self.rewards = rewards
         self.votes = votes
         self.voters = voters or []
+        self._id = None
+
+    @property
+    def id(self):
+        return str(self._id) if self._id else None
 
     @classmethod
     def get_by_id(cls, mission_id):
-        mission_data = redis_client.hgetall(f"mission:{mission_id}")
-        if mission_data:
-            try:
-                voters = redis_client.smembers(f"mission:{mission_id}:votes")
-                voters = [int(voter) for voter in voters]
-                mission = cls(
-                    mission_data[b'name'].decode('utf-8'),
-                    mission_data[b'description'].decode('utf-8'),
-                    mission_data.get(b'campaign_name', b'').decode('utf-8'),  # Handle missing campaign_name
-                    mission_data.get(b'rewards', b'').decode('utf-8'),
-                    int(mission_data.get(b'votes', b'0')),
-                    voters
-                )
-            except KeyError as e:
-                return None
-            mission.id = mission_id
-            return mission
+        try:
+            oid = OID.from_str(mission_id)
+            mission = db.load(oid)
+            if isinstance(mission, cls):
+                return mission
+        except:
+            pass
         return None
 
     @classmethod
     def create(cls, name, description, campaign_name, rewards=None):
         mission = cls(name, description, campaign_name, rewards)
-        mission_id = redis_client.incr("mission_id")  # Increment mission ID
-        mission.id = mission_id
-        redis_client.hmset(f"mission:{mission_id}", {
-            "name": name,
-            "description": description,
-            "campaign_name": campaign_name,
-            "rewards": rewards or '',
-            "votes": mission.votes
-        })
+        oid = db.save(mission)
+        mission._id = oid
         return mission
 
     @classmethod
     def get_all(cls):
-        mission_ids = redis_client.keys("mission:*")
-        missions = []
-        for mission_id in mission_ids:
-            mission = cls.get_by_id(int(mission_id.split(b':')[1]))
-            if mission:
-                missions.append(mission)
-        return missions
+        return list(db.load_all(cls))
 
     def vote(self, user):
-        redis_client.sadd(f"mission:{self.id}:votes", user.id)
-        self.votes += 1
-        self.voters.append(user.id)
-        redis_client.hset(f"mission:{self.id}", "votes", self.votes)
+        user_id = int(user.id)
+        if user_id not in self.voters:
+            self.voters.append(user_id)
+            self.votes += 1
+            db.save(self)
 
     def unvote(self, user):
-        redis_client.srem(f"mission:{self.id}:votes", user.id)
-        self.votes -= 1
-        self.voters.remove(user.id)
-        redis_client.hset(f"mission:{self.id}", "votes", self.votes)
+        user_id = int(user.id)
+        if user_id in self.voters:
+            self.voters.remove(user_id)
+            self.votes -= 1
+            db.save(self)
+
+    @classmethod
+    def get_by_campaign(cls, campaign_name):
+        return list(db.filter(cls, lambda m: m.campaign_name == campaign_name))

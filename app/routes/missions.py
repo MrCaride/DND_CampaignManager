@@ -2,9 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.mission import Mission
 from app.models.campaign import Campaign
-import redis
-
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+from app import db
 
 missions_bp = Blueprint('missions', __name__)
 
@@ -25,15 +23,7 @@ def manage_missions(campaign_id):
         return redirect(url_for('missions.manage_missions', campaign_id=campaign_id))
     
     # Filter missions by campaign_name
-    mission_ids = redis_client.keys("mission:*")
-    missions = []
-    mission_ids_seen = set()
-    for mission_id in mission_ids:
-        mission = Mission.get_by_id(int(mission_id.split(b':')[1]))
-        if mission and mission.campaign_name == campaign.name and mission.id not in mission_ids_seen:
-            missions.append(mission)
-            mission_ids_seen.add(mission.id)
-    
+    missions = Mission.get_by_campaign(campaign.name)
     return render_template('missions/manage.html', campaign=campaign, missions=missions)
 
 @missions_bp.route('/<int:mission_id>/edit', methods=['GET', 'POST'])
@@ -49,13 +39,7 @@ def edit_mission(mission_id):
         mission.name = request.form['name']
         mission.description = request.form['description']
         mission.rewards = request.form.get('rewards', '')
-        redis_client.hmset(f"mission:{mission_id}", {
-            "name": mission.name,
-            "description": mission.description,
-            "campaign_name": mission.campaign_name,
-            "rewards": mission.rewards,
-            "votes": mission.votes
-        })
+        db.save(mission)
         flash('Mission updated successfully!', 'success')
         return redirect(url_for('missions.manage_missions', campaign_id=campaign.id))
     
@@ -70,7 +54,8 @@ def delete_mission(mission_id):
         flash('You do not have permission to delete this mission.', 'danger')
         return redirect(url_for('campaigns.play_campaign', campaign_id=campaign.id))
 
-    redis_client.delete(f"mission:{mission_id}")
+    # En Sirope, eliminamos la referencia al objeto
+    db._r.delete(f"{db._Sirope__key_prefix}:{mission.__class__.__name__}:{mission.id}")
     flash('Mission deleted successfully!', 'success')
     return redirect(url_for('missions.manage_missions', campaign_id=campaign.id))
 
@@ -82,16 +67,7 @@ def view_missions(campaign_id):
         flash('Campaign not found', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
-    # Obtener todas las misiones desde Redis
-    mission_ids = redis_client.keys("mission:*")
-    missions = []
-    mission_ids_seen = set()
-    for mission_id in mission_ids:
-        mission = Mission.get_by_id(int(mission_id.split(b':')[1]))
-        if mission and mission.campaign_name == campaign.name and mission.id not in mission_ids_seen:
-            missions.append(mission)
-            mission_ids_seen.add(mission.id)
-
+    missions = Mission.get_by_campaign(campaign.name)
     return render_template('missions/view.html', campaign=campaign, missions=missions)
 
 @missions_bp.route('/vote/<int:mission_id>', methods=['POST'])

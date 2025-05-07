@@ -4,7 +4,7 @@ from app.models.campaign import Campaign
 from app.models.user import User
 from app.models.character import Character
 from app.models.mission import Mission
-from app import redis_client
+from app import db
 
 campaigns_bp = Blueprint('campaigns', __name__)
 
@@ -12,23 +12,25 @@ campaigns_bp = Blueprint('campaigns', __name__)
 @login_required
 def list_campaigns():
     if current_user.role == 'master':
-        campaigns = [campaign for campaign in Campaign.get_all() if campaign.master_id == current_user.id]
-        print(f"Master {current_user.username} campaigns: {[campaign.name for campaign in campaigns]}")  # Debug statement
+        campaigns = list(db.filter(Campaign, lambda c: c.master_id == current_user.id))
+        print(f"Master {current_user.username} campaigns: {[campaign.name for campaign in campaigns]}")
     else:
-        campaigns = [campaign for campaign in Campaign.get_all() if campaign.is_public or current_user.username in campaign.allowed_players]
-        print(f"Player {current_user.username} campaigns: {[campaign.name for campaign in campaigns]}")  # Debug statement
+        all_campaigns = Campaign.get_all()
+        campaigns = [campaign for campaign in all_campaigns 
+                    if campaign.is_public or current_user.username in campaign.allowed_players]
+        print(f"Player {current_user.username} campaigns: {[campaign.name for campaign in campaigns]}")
 
     user_characters = Character.get_by_username(current_user.username)
     joined_campaigns = {character.campaign: character for character in user_characters if character.campaign}
-    print(f"User {current_user.username} joined campaigns: {joined_campaigns}")  # Debug statement
+    print(f"User {current_user.username} joined campaigns: {joined_campaigns}")
 
-    # Ensure joined_campaigns only contains campaigns the user is actually part of
-    joined_campaigns = {campaign_name: character for campaign_name, character in joined_campaigns.items() if campaign_name in [campaign.name for campaign in campaigns]}
-    print(f"Filtered joined campaigns: {joined_campaigns}")  # Debug statement
+    joined_campaigns = {campaign_name: character for campaign_name, character in joined_campaigns.items() 
+                       if campaign_name in [campaign.name for campaign in campaigns]}
+    print(f"Filtered joined campaigns: {joined_campaigns}")
 
     return render_template('campaigns/list.html', campaigns=campaigns, joined_campaigns=joined_campaigns)
 
-@campaigns_bp.route('/view/<int:campaign_id>', methods=['GET'])
+@campaigns_bp.route('/view/<campaign_id>', methods=['GET'])
 @login_required
 def view_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
@@ -54,7 +56,7 @@ def create_campaign():
         return redirect(url_for('campaigns.list_campaigns'))
     return render_template('campaigns/create.html')
 
-@campaigns_bp.route('/edit/<int:campaign_id>', methods=['GET', 'POST'])
+@campaigns_bp.route('/edit/<campaign_id>', methods=['GET', 'POST'])
 @login_required
 def edit_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
@@ -65,18 +67,14 @@ def edit_campaign(campaign_id):
     if request.method == 'POST':
         campaign.name = request.form.get('name')
         campaign.is_public = 'is_public' in request.form
-        redis_client.hmset(f"campaign:{campaign_id}", {
-            "name": campaign.name,
-            "is_public": int(campaign.is_public),
-            "master_id": campaign.master_id
-        })
+        db.save(campaign)
         flash('Campaign updated successfully!', 'success')
         return redirect(url_for('campaigns.list_campaigns'))
     
     players = User.get_all()
     return render_template('campaigns/edit.html', campaign=campaign, players=players)
 
-@campaigns_bp.route('/delete/<int:campaign_id>', methods=['POST'])
+@campaigns_bp.route('/delete/<campaign_id>', methods=['POST'])
 @login_required
 def delete_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
@@ -84,11 +82,12 @@ def delete_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
-    redis_client.delete(f"campaign:{campaign_id}")
+    # En Sirope, eliminamos la referencia al objeto
+    db._r.delete(f"{db._Sirope__key_prefix}:{campaign.__class__.__name__}:{campaign.id}")
     flash('Campaign deleted successfully!', 'success')
     return redirect(url_for('campaigns.list_campaigns'))
 
-@campaigns_bp.route('/join/<int:campaign_id>', methods=['GET', 'POST'])
+@campaigns_bp.route('/join/<campaign_id>', methods=['GET', 'POST'])
 @login_required
 def join_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
@@ -100,13 +99,11 @@ def join_campaign(campaign_id):
         character_id = request.form.get('character_id')
         character = Character.get_by_id(character_id)
         if character and character.user_id == current_user.id:
-            # Ensure the character is not already in another campaign
             if character.campaign:
                 flash('This character is already in another campaign.', 'danger')
                 return redirect(url_for('campaigns.list_campaigns'))
-            # Add character to campaign logic
             character.campaign = campaign.name
-            redis_client.hset(f"character:{character_id}", "campaign", campaign.name)
+            db.save(character)
             flash('Joined campaign successfully!', 'success')
         else:
             flash('You do not have permission to join this campaign with this character.', 'danger')
@@ -115,7 +112,7 @@ def join_campaign(campaign_id):
     characters = Character.get_by_username(current_user.username)
     return render_template('campaigns/join.html', campaign=campaign, characters=characters)
 
-@campaigns_bp.route('/leave/<int:campaign_id>', methods=['POST'])
+@campaigns_bp.route('/leave/<campaign_id>', methods=['POST'])
 @login_required
 def leave_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
@@ -123,23 +120,18 @@ def leave_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
-    character_ids = redis_client.keys("character:*")
-    for character_id in character_ids:
-        character_id = character_id.decode('utf-8').split(':')[1]  # Decode and split the character_id
-        character = Character.get_by_id(int(character_id))
-        if character and character.user_id == current_user.id and character.campaign == campaign.name:
-            character.campaign = None
-            character.campaign_id = None
-            redis_client.hset(f"character:{character_id}", "campaign", '')
-            redis_client.hset(f"character:{character_id}", "campaign_id", 0)
-            flash('Left campaign successfully!', 'success')
-            break
+    character = Character.get_by_user_and_campaign(current_user.id, campaign.name)
+    if character:
+        character.campaign = None
+        character.campaign_id = None
+        db.save(character)
+        flash('Left campaign successfully!', 'success')
     else:
         flash('You are not part of this campaign.', 'danger')
     
     return redirect(url_for('campaigns.list_campaigns'))
 
-@campaigns_bp.route('/play/<int:campaign_id>', methods=['GET'])
+@campaigns_bp.route('/play/<campaign_id>', methods=['GET'])
 @login_required
 def play_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
@@ -147,31 +139,12 @@ def play_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
-    # Obtener todos los personajes y filtrar por la campaña actual
     characters = Character.get_all()
     campaign_characters = [character for character in characters if character.campaign == campaign.name]
-    print(f"Characters in this campaign: {[(char.name, char.user_username) for char in campaign_characters]}")  # Debug statement
+    print(f"Characters in this campaign: {[(char.name, char.user_username) for char in campaign_characters]}")
 
-    missions = Mission.get_all()
+    missions = Mission.get_by_campaign(campaign.name)
     if current_user.role == 'master':
         return render_template('campaigns/play_master.html', campaign=campaign, characters=campaign_characters, missions=missions)
     else:
         return render_template('campaigns/play_player.html', campaign=campaign, characters=campaign_characters, missions=missions)
-
-@campaigns_bp.route('/operations_master/<int:campaign_id>', methods=['GET'])
-@login_required
-def operations_master(campaign_id):
-    campaign = Campaign.get_by_id(campaign_id)
-    if not campaign:
-        flash('Campaign not found.', 'danger')
-        return redirect(url_for('campaigns.list_campaigns'))
-    return render_template('campaigns/operations_master.html', campaign=campaign)
-
-@campaigns_bp.route('/operations_player/<int:campaign_id>', methods=['GET'])
-@login_required
-def operations_player(campaign_id):
-    campaign = Campaign.get_by_id(campaign_id)
-    if not campaign:
-        flash('Campaign not found.', 'danger')
-        return redirect(url_for('campaigns.list_campaigns'))
-    return render_template('campaigns/operations_player.html', campaign=campaign)

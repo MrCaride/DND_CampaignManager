@@ -8,35 +8,41 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        username = request.form.get('username')
+        password = request.form.get('password')
+        print(f"Attempting login with username: {username}")
+        user = User.get_by_username(username)
         if user and user.check_password(password):
+            print(f"User found and password verified for {username}")
             login_user(user)
-            flash('Login successful!', 'success')
-            return redirect(url_for('welcome'))  # Redirect to the welcome page
+            print(f"User {username} logged in successfully with role {user.role}")
+            return redirect(url_for('main.operations'))
         else:
-            flash('Invalid username or password', 'danger')
-    return render_template('auth/login.html')
+            print(f"Login failed for username: {username}")
+            flash('Invalid username or password.', 'danger')
+    return render_template('login.html')
 
 @auth_bp.route('/logout')
+@login_required
 def logout():
+    print(f"User {current_user.username} logged out")
     logout_user()
-    flash('You have been logged out.', 'info')
     return redirect(url_for('auth.login'))
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists. Please choose a different one.', 'danger')
-        else:
-            new_user = User(username=username)
-            new_user.set_password(password)
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Registration successful! You can now log in.', 'success')
-            return redirect(url_for('auth.login'))
-    return render_template('auth/register.html')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        role = request.form.get('role')
+        
+        if User.get_by_username(username):
+            flash('Username already exists.', 'danger')
+            return render_template('register.html')
+            
+        user = User.create(username, password, role)
+        print(f"Created new user: {username} with role: {role}")
+        login_user(user)
+        flash('Registration successful!', 'success')
+        return redirect(url_for('main.operations'))
+    return render_template('register.html')

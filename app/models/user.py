@@ -1,13 +1,15 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import redis_client
+from app import db
+from sirope import OID
 
 class User(UserMixin):
-    def __init__(self, username, password=None, role=None):
+    def __init__(self, username, password=None, role=None, _id=None):
         self.username = username
+        self.role = role
+        self._id = _id  # Initialize _id in constructor
         if password:
             self.set_password(password)
-        self.role = role
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -18,53 +20,50 @@ class User(UserMixin):
         print(f"Password check for {self.username}: {result}")
         return result
 
+    @property
+    def id(self):
+        return str(self._id) if self._id else None
+
     @classmethod
     def get_by_id(cls, user_id):
-        user_data = redis_client.hgetall(f"user:{int(user_id)}")  # Convert user_id to int
-        if user_data:
-            print(f"User data found for ID {user_id}: {user_data}")
-            user = cls(user_data[b'username'].decode('utf-8'))
-            user.password_hash = user_data[b'password_hash'].decode('utf-8')
-            user.role = user_data[b'role'].decode('utf-8')
-            user.id = int(user_id)  # Ensure user.id is an int
-            return user
-        print(f"No user data found for ID {user_id}")
+        try:
+            # En Sirope, buscamos por el OID
+            oid = OID.from_str(user_id)
+            user = db.load(oid)
+            if isinstance(user, cls):
+                return user
+        except:
+            pass
         return None
 
     @classmethod
     def create(cls, username, password, role):
         user = cls(username, password, role)
-        user_id = redis_client.incr("user_id")  # Increment user ID
-        user.id = user_id
-        redis_client.hmset(f"user:{user_id}", {
-            "username": username,
-            "password_hash": user.password_hash,
-            "role": role
-        })
-        cls.index_username(username, user_id)
+        # Guardamos el usuario en Sirope y obtenemos su OID
+        oid = db.save(user)
+        user._id = oid
         return user
 
     @classmethod
     def get_by_username(cls, username):
-        user_id = redis_client.hget("username_index", username)
-        if user_id:
-            user_id = int(user_id)  # Convert user_id to int
-            print(f"User ID found for username {username}: {user_id}")
-            return cls.get_by_id(user_id)
-        print(f"No user ID found for username {username}")
-        return None
-
-    @classmethod
-    def index_username(cls, username, user_id):
-        redis_client.hset("username_index", username, user_id)
+        print(f"Searching for user with username: {username}")
+        try:
+            # Obtener todos los usuarios primero para debug
+            all_users = list(db.load_all(cls))
+            print(f"All users in database: {[u.username for u in all_users]}")
+            
+            # En Sirope, usamos find_first para buscar por username
+            user = db.find_first(cls, lambda u: hasattr(u, 'username') and u.username == username)
+            if user:
+                print(f"Found user: {user.username} with role: {user.role}")
+            else:
+                print(f"No user found with username: {username}")
+            return user
+        except Exception as e:
+            print(f"Error searching for user: {str(e)}")
+            return None
 
     @classmethod
     def get_all(cls):
-        user_ids = redis_client.keys("user:*")
-        users = []
-        for user_id in user_ids:
-            user = cls.get_by_id(user_id.split(b':')[1].decode('utf-8'))
-            if user:
-                users.append(user)
-        print(f"All users fetched: {[user.username for user in users]}")  # Debug statement
-        return users
+        # En Sirope, usamos load_all para obtener todos los usuarios
+        return list(db.load_all(cls))

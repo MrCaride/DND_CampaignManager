@@ -1,9 +1,7 @@
-
-
 # DnD Campaign Manager
 
 ## Descripción
-El DnD Campaign Manager es una aplicación web diseñada para gestionar campañas de Dragones y Mazmorras. Permite a los jugadores crear y gestionar sus personajes, mientras que los másters pueden crear campañas, definir misiones y gestionar combates. La aplicación utiliza Flask como framework principal y Redis como almacenamiento de datos.
+El DnD Campaign Manager es una aplicación web diseñada para gestionar campañas de Dragones y Mazmorras. Permite a los jugadores crear y gestionar sus personajes, mientras que los másters pueden crear campañas, definir misiones y gestionar combates. La aplicación utiliza Flask como framework principal y Sirope como capa de persistencia sobre Redis.
 
 ## Estructura del Proyecto
 ```
@@ -15,9 +13,7 @@ dnd-campaign-manager
 │   │   ├── user.py
 │   │   ├── character.py
 │   │   ├── campaign.py
-│   │   ├── mission.py
-│   │   ├── combat.py
-│   │   └── item.py
+│   │   └── mission.py
 │   ├── routes
 │   │   ├── __init__.py
 │   │   ├── auth.py
@@ -38,10 +34,6 @@ dnd-campaign-manager
 │   │   │   ├── list.html
 │   │   │   ├── play_master.html
 │   │   │   ├── play_player.html
-│   │   │   ├── view.html
-│   │   │   ├── operations_master.html
-│   │   │   └── operations_player.html
-│   │   │   ├── manage.html
 │   │   │   └── view.html
 │   │   ├── missions
 │   │   │   ├── manage.html
@@ -50,176 +42,154 @@ dnd-campaign-manager
 │   ├── static
 │   │   └── styles.css
 │   └── main.py
-├── migrations
 ├── create_users.py
-├── migrate.py
+├── app.py
 ├── requirements.txt
 └── README.md
 ```
 
 ### Descripción de los folders
 - **app**: Contiene la aplicación principal de Flask.
-  - **__init__.py**: Inicializa la aplicación Flask.
+  - **__init__.py**: Inicializa la aplicación Flask y la instancia de Sirope.
   - **auth.py**: Maneja la autenticación de usuarios.
   - **models**: Contiene los modelos de datos.
-    - **user.py**: Modelo de usuario.
-    - **character.py**: Modelo de personaje.
-    - **campaign.py**: Modelo de campaña.
-    - **mission.py**: Modelo de misión.
-    - **combat.py**: Modelo de combate.
-    - **item.py**: Modelo de objeto.
+    - **user.py**: Modelo de usuario con gestión de autenticación.
+    - **character.py**: Modelo de personaje con atributos y estadísticas.
+    - **campaign.py**: Modelo de campaña con gestión de permisos.
+    - **mission.py**: Modelo de misión con sistema de votos.
   - **routes**: Contiene las rutas de la aplicación.
-    - **__init__.py**: Inicializa las rutas.
     - **auth.py**: Rutas de autenticación.
-    - **characters.py**: Rutas de personajes.
-    - **campaigns.py**: Rutas de campañas.
-    - **missions.py**: Rutas de misiones.
+    - **characters.py**: Rutas para gestión de personajes.
+    - **campaigns.py**: Rutas para gestión de campañas.
+    - **missions.py**: Rutas para gestión de misiones.
   - **templates**: Contiene las plantillas HTML.
-    - **auth**: Plantillas de autenticación.
-    - **characters**: Plantillas de personajes.
-    - **campaigns**: Plantillas de campañas.
-    - **missions**: Plantillas de misiones.
-    - **index.html**: Plantilla de la página principal.
   - **static**: Contiene archivos estáticos como CSS.
-    - **styles.css**: Archivo de estilos CSS.
   - **main.py**: Archivo principal de la aplicación.
-- **migrations**: Contiene archivos de migración de la base de datos.
-- **create_users.py**: Script para crear usuarios y datos de prueba.
-- **migrate.py**: Script para realizar migraciones de la base de datos.
-- **requirements.txt**: Archivo de dependencias del proyecto.
-- **README.md**: Archivo README del proyecto.
+- **create_users.py**: Script para crear datos de prueba.
+- **app.py**: Punto de entrada de la aplicación.
+- **requirements.txt**: Dependencias del proyecto.
 
-## Scripts
+## Configuración del Entorno
 
-### migrate.py
-El script `migrate.py` se utiliza para realizar migraciones de la base de datos. Esto es útil cuando se realizan cambios en los modelos de datos y se necesita actualizar la estructura de la base de datos.
-
-Para ejecutar el script `migrate.py`, usa el siguiente comando:
+1. Asegúrate de tener Python 3.x instalado
+2. Instala Redis en tu sistema
+3. Instala las dependencias:
 ```bash
-python migrate.py
+pip install -r requirements.txt
+```
+4. Inicia Redis
+5. Ejecuta la aplicación:
+```bash
+python app.py
 ```
 
-### create_users.py
-El script `create_users.py` se utiliza para restablecer la base de datos y poblarla con datos genéricos. Esto incluye la creación de usuarios, campañas, personajes, misiones y combates.
-
-Para ejecutar el script `create_users.py`, usa el siguiente comando:
+### Datos de Prueba
+Para poblar la base de datos con datos de prueba, ejecuta:
 ```bash
 python create_users.py
 ```
 
-Este script es útil para configurar rápidamente un entorno de desarrollo con datos de prueba.
+Este script creará:
+- Usuarios de prueba (masters y jugadores)
+- Campañas de ejemplo
+- Personajes de muestra
+- Misiones predefinidas
 
-## Requisitos
-- Python 3.x
-- Flask
-- Flask-Login
-- Redis
-
-## Tecnologías Usadas
+## Tecnologías Utilizadas
 
 ### Backend
-- **Flask**: Framework web utilizado para construir la aplicación.
-- **Flask-Login**: Extensión de Flask para gestionar la autenticación de usuarios.
-- **Redis**: Base de datos en memoria utilizada para almacenar datos de la aplicación.
+- **Flask**: Framework web para Python
+- **Flask-Login**: Gestión de autenticación de usuarios
+- **Sirope**: Capa de persistencia sobre Redis
+- **Redis**: Base de datos en memoria
 
 ### Frontend
-- **HTML/CSS**: Lenguajes de marcado y estilo utilizados para construir la interfaz de usuario.
-- **Jinja2**: Motor de plantillas utilizado por Flask para renderizar HTML dinámico.
+- **HTML/CSS**: Interfaz de usuario
+- **Jinja2**: Motor de plantillas
 
-### Otros
-- **Python**: Lenguaje de programación utilizado para desarrollar la aplicación.
-- **Werkzeug**: Biblioteca WSGI utilizada por Flask para gestionar solicitudes y respuestas HTTP.
+## Arquitectura de Persistencia
 
-## Entidades principales
+La aplicación utiliza Sirope como capa de persistencia, proporcionando:
 
-### Usuarios 👤
-- **Atributos**:
-  - `id`: ID del usuario
-  - `username`: Nombre de usuario
-  - `password`: Contraseña
-  - `role`: Rol del usuario (jugador o máster)
-- **Relaciones**:
-  - Un usuario puede tener varios personajes.
-  - Un usuario (máster) puede gestionar varias campañas.
+- Mapeo objeto-documento transparente
+- Gestión automática de identificadores únicos (OIDs)
+- Búsquedas eficientes
+- Integración con Redis
 
-### Personajes ⚔️
-- **Atributos**:
-  - `id`: ID del personaje
-  - `name`: Nombre del personaje
-  - `user_id`: ID del usuario propietario
-  - `race`: Raza del personaje
-  - `character_class`: Clase del personaje
-  - `level`: Nivel del personaje 
-  - `strength`: Fuerza
-  - `dexterity`: Destreza
-  - `constitution`: Constitución
-  - `intelligence`: Inteligencia
-  - `wisdom`: Sabiduría
-  - `charisma`: Carisma
-  - `hit_points`: Puntos de vida
-  - `armor_class`: Clase de armadura
-  - `initiative`: Iniciativa
-  - `speed`: Velocidad
-  - `campaign_id`: ID de la campaña a la que pertenece (opcional)
-- **Relaciones**:
-  - Un personaje pertenece a un usuario (jugador).
-  - Un personaje puede estar en una campaña.
+### Modelos Principales
 
-### Campañas 📜
-- **Atributos**:
-  - `id`: ID de la campaña
-  - `name`: Nombre de la campaña
-  - `master_id`: ID del máster propietario
-  - `is_public`: Indica si la campaña es pública o privada
-  - `allowed_players`: Lista de jugadores permitidos
-- **Relaciones**:
-  - Una campaña pertenece a un máster (usuario).
-  - Una campaña puede tener varios personajes asociados.
-  - Una campaña tiene varias misiones.
+#### User
+```python
+class User:
+    username: str
+    password_hash: str
+    role: str  # 'master' o 'player'
+```
 
-### Misiones 🎭
-- **Atributos**:
-  - `id`: ID de la misión
-  - `name`: Nombre de la misión
-  - `description`: Descripción de la misión
-  - `reward`: Recompensa de la misión
-  - `campaign_id`: ID de la campaña a la que pertenece
-- **Relaciones**:
-  - Una misión pertenece a una campaña.
+#### Character
+```python
+class Character:
+    name: str
+    race: str
+    character_class: str
+    level: int
+    # Atributos D&D
+    strength: int
+    dexterity: int
+    constitution: int
+    intelligence: int
+    wisdom: int
+    charisma: int
+    # Stats de combate
+    armor_class: int
+    initiative: int
+    hit_points: int
+    speed: int
+    # Referencias
+    user_id: str
+    campaign: str
+```
 
-### Combates ⚔️🔥
-- **Atributos**:
-  - `id`: ID del combate
-  - `name`: Nombre del combate
-  - `campaign_id`: ID de la campaña a la que pertenece
-  - `participants`: Lista de participantes
-  - `turn_order`: Orden de turnos
-  - `active`: Indica si el combate está activo
-- **Relaciones**:
-  - Un combate pertenece a una campaña.
-  - Puede incluir varios personajes y enemigos.
+#### Campaign
+```python
+class Campaign:
+    name: str
+    is_public: bool
+    master_id: str
+    allowed_players: List[str]
+```
 
-## Roles
+#### Mission
+```python
+class Mission:
+    name: str
+    description: str
+    campaign_name: str
+    rewards: str
+    votes: int
+    voters: List[str]
+```
+
+## Roles y Permisos
 
 ### Máster
-- Puede crear y gestionar campañas.
-- Puede definir misiones y combates.
-- Tiene control total sobre las campañas y sus elementos.
+- Crear y gestionar campañas
+- Crear y gestionar misiones
+- Aceptar/rechazar jugadores
+- Ver todos los personajes en sus campañas
 
 ### Jugador
-- Puede crear y gestionar personajes.
-- Puede unirse a campañas públicas o a las que ha sido invitado.
-- Participa en misiones y combates definidos por el máster.
+- Crear y gestionar personajes
+- Unirse a campañas públicas
+- Solicitar unirse a campañas privadas
+- Votar misiones
+- Ver detalles de campañas y misiones
 
-## Roles
+## Contribución
 
-### Máster
-- Puede crear y gestionar campañas.
-- Puede definir misiones y combates.
-- Tiene control total sobre las campañas y sus elementos.
-
-### Jugador
-- Puede crear y gestionar personajes.
-- Puede unirse a campañas públicas o a las que ha sido invitado.
-- Participa en misiones y combates definidos por el máster.
+1. Fork el repositorio
+2. Crea una rama para tu feature
+3. Haz commit de tus cambios
+4. Push a la rama
+5. Crea un Pull Request
 

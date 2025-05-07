@@ -1,11 +1,17 @@
-from app import create_app, redis_client
+from app import create_app, db
 from app.models.user import User
 from app.models.character import Character
 from app.models.campaign import Campaign
 from app.models.mission import Mission
+from sirope import OID
 import random
 
 app = create_app()
+
+def clean_database():
+    """Limpia la base de datos antes de crear nuevos datos"""
+    db._redis.flushdb()
+    print("Database cleaned")
 
 def create_initial_users():
     users = [
@@ -14,9 +20,15 @@ def create_initial_users():
         {"username": "player2", "password": "playerpass2", "role": "player"},
     ]
 
+    created_users = []
     for user_data in users:
-        user = User.create(user_data["username"], user_data["password"], user_data["role"])
-        print(f"Created user: {user.username}")
+        if not User.get_by_username(user_data["username"]):
+            user = User.create(user_data["username"], user_data["password"], user_data["role"])
+            created_users.append(user)
+            print(f"Created user: {user.username}")
+        else:
+            print(f"User {user_data['username']} already exists")
+    return created_users
 
 def create_initial_data():
     # Create generic users
@@ -30,11 +42,14 @@ def create_initial_data():
         {"username": "master3", "password": "masterpass3", "role": "master"},
     ]
 
+    created_users = {}
     for user_data in users:
-        User.create(user_data["username"], user_data["password"], user_data["role"])
+        if not User.get_by_username(user_data["username"]):
+            user = User.create(user_data["username"], user_data["password"], user_data["role"])
+            created_users[user.username] = user
 
     # Create generic campaigns
-    campaigns = [
+    campaigns_data = [
         {"name": "La comunidad del anillo", "master_username": "master", "is_public": True},
         {"name": "Las dos torres", "master_username": "master", "is_public": False, "allowed_players": ["user1", "user2"]},
         {"name": "El retorno del rey", "master_username": "master", "is_public": True},
@@ -44,10 +59,22 @@ def create_initial_data():
         {"name": "The Last Crusade", "master_username": "master3", "is_public": False, "allowed_players": ["user1", "user3"]},
     ]
 
-    for campaign_data in campaigns:
-        master = User.get_by_username(campaign_data["master_username"])
-        campaign = Campaign.create(campaign_data["name"], campaign_data["is_public"], master_id=master.id, allowed_players=campaign_data.get("allowed_players", []))
-        print(f"Created campaign: {campaign.name}")
+    created_campaigns = {}
+    for campaign_data in campaigns_data:
+        name = campaign_data["name"]
+        existing = Campaign.get_by_name(name)
+        if not existing:
+            master = User.get_by_username(campaign_data["master_username"])
+            if master:
+                campaign = Campaign.create(
+                    name=name,
+                    is_public=campaign_data["is_public"],
+                    master_id=master.id,
+                    allowed_players=campaign_data.get("allowed_players", [])
+                )
+                created_campaigns[name] = campaign
+        else:
+            created_campaigns[name] = existing
 
     # Create characters
     characters = [
@@ -61,8 +88,16 @@ def create_initial_data():
 
     for character_data in characters:
         user = User.get_by_username(character_data["user_username"])
-        character = Character.create(character_data["name"], character_data["race"], character_data["character_class"], character_data["level"], user.id, user.username)
-        print(f"Created character: {character.name} for user: {user.username}")
+        if user:
+            character = Character.create(
+                name=character_data["name"],
+                race=character_data["race"],
+                character_class=character_data["character_class"],
+                level=character_data["level"],
+                user_id=user.id,
+                user_username=user.username
+            )
+            print(f"Created character: {character.name} for user: {user.username}")
 
     # Create missions
     missions = [
@@ -79,12 +114,18 @@ def create_initial_data():
     ]
 
     for mission_data in missions:
-        campaign = Campaign.get_by_name(mission_data["campaign_name"])
-        rewards = random.randint(50, 500)  # Generar un número aleatorio para las recompensas
-        Mission.create(mission_data["name"], mission_data["description"], mission_data["campaign_name"], rewards)
-        print(f"Created mission: {mission_data['name']} with rewards: {rewards}")
-
+        campaign = created_campaigns.get(mission_data["campaign_name"])
+        if campaign:
+            rewards = random.randint(50, 500)
+            mission = Mission.create(
+                name=mission_data["name"],
+                description=mission_data["description"],
+                campaign_name=mission_data["campaign_name"],
+                rewards=rewards
+            )
+            print(f"Created mission: {mission_data['name']} with rewards: {rewards}")
 
 if __name__ == "__main__":
+    clean_database()
     create_initial_users()
     create_initial_data()
