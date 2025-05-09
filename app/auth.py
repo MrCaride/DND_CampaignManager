@@ -17,12 +17,18 @@ def login():
         user = User.get_by_username(username)
         if user:
             print(f"User found: {user.username}, role: {user.role}")
+            print(f"User ID: {user.get_id()}")  # Usar get_id() en lugar de .id
             print(f"Stored password hash: {user.password_hash}")
             if user.check_password(password):
                 print("Password verified successfully")
-                login_user(user)
-                print(f"User {user.username} logged in successfully")
-                return redirect(url_for('main.operations'))
+                # Asegurarse de que login_user reciba el usuario correcto
+                login_success = login_user(user)
+                print(f"Login success: {login_success}")
+                if login_success:
+                    print(f"User {user.username} logged in successfully with ID: {user.get_id()}")  # Usar get_id()
+                    return redirect(url_for('main.operations'))
+                else:
+                    print("Login_user failed")
             else:
                 print("Password verification failed")
                 print(f"Attempting to verify '{password}' against hash {user.password_hash}")
@@ -41,15 +47,22 @@ def register():
         password = request.form.get('password')
         role = request.form.get('role')
         
-        # Verificar si el usuario ya existe
         if User.get_by_username(username):
             flash('El nombre de usuario ya existe. Por favor elija otro.', 'error')
             return render_template('auth/register.html')
             
         user = User.create(username, password, role)
-        login_user(user)
-        flash('Registro exitoso!', 'success')
-        return redirect(url_for('main.operations'))
+        if user and user.get_id():  # Verificar que el usuario tiene ID usando get_id()
+            print(f"Created new user with ID: {user.get_id()}")  # Usar get_id()
+            if login_user(user):
+                print(f"User {user.username} logged in successfully after registration")
+                flash('Registro exitoso!', 'success')
+                return redirect(url_for('main.operations'))
+            else:
+                print("Failed to login after registration")
+                flash('Error al iniciar sesión después del registro', 'error')
+                return redirect(url_for('auth.login'))
+            
     return render_template('auth/register.html')
 
 @auth.route('/logout')

@@ -113,8 +113,8 @@
             <p>Votes: {{ mission.votes }}</p>
             <p>Reward: {{ mission.rewards }}</p>
             <div class="button-group">
-                <a href="{{ url_for('missions.edit_mission', mission_id=mission.id) }}" class="btn edit-button">Edit</a>
-                <form method="POST" action="{{ url_for('missions.delete_mission', mission_id=mission.id) }}" style="display:inline;">
+                <a href="{{ url_for('missions.edit_mission', campaign_id=campaign._id, mission_id=mission._id) }}" class="btn edit-button">Edit</a>
+                <form method="POST" action="{{ url_for('missions.delete_mission', campaign_id=campaign._id, mission_id=mission._id) }}" style="display:inline;">
                     <button type="submit" class="btn delete-button">Delete</button>
                 </form>
             </div>
@@ -122,7 +122,7 @@
         {% endfor %}
     </ul>
     <div class="button-container">
-        <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back</a>
+        <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign._id) }}" class="back-button">Back</a>
     </div>
 </div>
 {% endblock %}

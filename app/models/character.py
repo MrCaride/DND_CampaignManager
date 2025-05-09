@@ -25,19 +25,36 @@ class Character:
         self.campaign = campaign
         self._id = None
 
+    def __getstate__(self):
+        """Método especial para pickle/Sirope - asegura que el _id se guarde"""
+        state = self.__dict__.copy()
+        return state
+
+    def __setstate__(self, state):
+        """Método especial para pickle/Sirope - asegura que el _id se restaure"""
+        self.__dict__.update(state)
+
     @property
     def id(self):
+        """Retorna el ID en formato string"""
         return str(self._id) if self._id else None
 
     @classmethod
     def get_by_id(cls, character_id):
         try:
-            oid = OID.from_str(character_id)
-            character = db.load(oid)
-            if isinstance(character, cls):
-                return character
-        except:
-            pass
+            if not character_id:
+                return None
+
+            # Si el ID tiene formato 'app.models.character.Character@0', extraer el número
+            if '@' in str(character_id):
+                oid_num = int(str(character_id).split('@')[-1])
+                all_characters = list(db.load_all(cls))
+                # Buscar el personaje con el _id correspondiente
+                for character in all_characters:
+                    if hasattr(character, '_id') and character._id and str(character._id).endswith(f'@{oid_num}'):
+                        return character
+        except Exception as e:
+            print(f"Error loading character by ID: {str(e)}")
         return None
 
     @classmethod
@@ -49,16 +66,42 @@ class Character:
                       armor_class, initiative, hit_points, speed, campaign)
         oid = db.save(character)
         character._id = oid
+        print(f"Created character: {character.name} for user: {user_username} with ID: {character.id}")
+        
+        # Volver a guardar para asegurar que el _id se persiste
+        db.save(character)
         return character
 
     @classmethod
     def get_all(cls):
-        return list(db.load_all(cls))
+        characters = list(db.load_all(cls))
+        # Asegurar que todos los personajes tienen su ID
+        updated_characters = []
+        for character in characters:
+            if not hasattr(character, '_id') or not character._id:
+                oid = db.save(character)
+                character._id = oid
+                db.save(character)
+            updated_characters.append(character)
+        return updated_characters
 
     @classmethod
     def get_by_username(cls, user_username):
-        return list(db.filter(cls, lambda char: char.user_username == user_username))
+        print(f"Getting characters for username: {user_username}")
+        characters = list(db.filter(cls, lambda char: char.user_username == user_username))
+        # Asegurar que todos los personajes tienen su ID
+        updated_characters = []
+        for character in characters:
+            if not hasattr(character, '_id') or not character._id:
+                oid = db.save(character)
+                character._id = oid
+                db.save(character)
+            updated_characters.append(character)
+        print(f"Found characters: {[(char.name, char.user_username) for char in updated_characters]}")
+        return updated_characters
 
     @classmethod
     def get_by_user_and_campaign(cls, user_id, campaign_name):
-        return db.find_first(cls, lambda char: char.user_id == user_id and char.campaign == campaign_name)
+        # Convertir user_id a string para comparación consistente
+        user_id = str(user_id)
+        return db.find_first(cls, lambda char: str(char.user_id) == user_id and char.campaign == campaign_name)

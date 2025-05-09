@@ -12,7 +12,7 @@ campaigns_bp = Blueprint('campaigns', __name__)
 @login_required
 def list_campaigns():
     if current_user.role == 'master':
-        campaigns = list(db.filter(Campaign, lambda c: c.master_id == current_user.id))
+        campaigns = list(db.filter(Campaign, lambda c: str(c.master_id) == str(current_user._oid)))
         print(f"Master {current_user.username} campaigns: {[campaign.name for campaign in campaigns]}")
     else:
         all_campaigns = Campaign.get_all()
@@ -51,7 +51,7 @@ def create_campaign():
     if request.method == 'POST':
         name = request.form['name']
         is_public = 'is_public' in request.form
-        new_campaign = Campaign.create(name=name, is_public=is_public, master_id=current_user.id)
+        new_campaign = Campaign.create(name=name, is_public=is_public, master_id=str(current_user._oid))
         flash('Campaign created successfully!', 'success')
         return redirect(url_for('campaigns.list_campaigns'))
     return render_template('campaigns/create.html')
@@ -67,11 +67,14 @@ def edit_campaign(campaign_id):
     if request.method == 'POST':
         campaign.name = request.form.get('name')
         campaign.is_public = 'is_public' in request.form
+        # Obtener la lista de allowed_players
+        campaign.allowed_players = request.form.getlist('allowed_players')
+        print(f"Updating campaign {campaign.name} with allowed players: {campaign.allowed_players}")
         db.save(campaign)
         flash('Campaign updated successfully!', 'success')
         return redirect(url_for('campaigns.list_campaigns'))
     
-    players = User.get_all()
+    players = [user for user in User.get_all() if user.role != 'master']
     return render_template('campaigns/edit.html', campaign=campaign, players=players)
 
 @campaigns_bp.route('/delete/<campaign_id>', methods=['POST'])
@@ -82,9 +85,11 @@ def delete_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
-    # En Sirope, eliminamos la referencia al objeto
-    db._r.delete(f"{db._Sirope__key_prefix}:{campaign.__class__.__name__}:{campaign.id}")
-    flash('Campaign deleted successfully!', 'success')
+    if hasattr(campaign, '_id') and campaign._id:
+        db.delete(campaign._id)  # Pass the OID instead of the object
+        flash('Campaign deleted successfully!', 'success')
+    else:
+        flash('Campaign does not have a valid ID.', 'danger')
     return redirect(url_for('campaigns.list_campaigns'))
 
 @campaigns_bp.route('/join/<campaign_id>', methods=['GET', 'POST'])
@@ -98,7 +103,7 @@ def join_campaign(campaign_id):
     if request.method == 'POST':
         character_id = request.form.get('character_id')
         character = Character.get_by_id(character_id)
-        if character and character.user_id == current_user.id:
+        if character and str(character.user_id) == str(current_user._oid):  # Compare using _oid
             if character.campaign:
                 flash('This character is already in another campaign.', 'danger')
                 return redirect(url_for('campaigns.list_campaigns'))
@@ -120,7 +125,7 @@ def leave_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
-    character = Character.get_by_user_and_campaign(current_user.id, campaign.name)
+    character = Character.get_by_user_and_campaign(str(current_user._oid), campaign.name)  # Use _oid
     if character:
         character.campaign = None
         character.campaign_id = None

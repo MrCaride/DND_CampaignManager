@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models.user import User
 from app import db
@@ -10,26 +10,32 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        print(f"Attempting login with username: {username}")
+        print(f"Login attempt for username: {username}")
+        
         user = User.get_by_username(username)
-        if user and user.check_password(password):
-            print(f"User found and password verified for {username}")
-            login_user(user)
-            print(f"User {username} logged in successfully with role {user.role}")
-            return redirect(url_for('main.operations'))
+        if user and user.get_id():  # Verificar que el usuario tenga ID usando get_id()
+            print(f"User found: {user.username}, ID: {user.get_id()}")
+            if user.check_password(password):
+                print("Password verified successfully")
+                try:
+                    if login_user(user, remember=True):  # Mantener la sesión
+                        print(f"User {user.username} logged in successfully with ID: {user.get_id()}")
+                        return redirect(url_for('main.operations'))
+                    else:
+                        print("Login_user failed")
+                except Exception as e:
+                    print(f"Error during login: {str(e)}")
+            else:
+                print("Password verification failed")
         else:
-            print(f"Login failed for username: {username}")
-            flash('Invalid username or password.', 'danger')
-    return render_template('login.html')
+            print(f"No valid user found with username: {username}")
+        
+        flash('Usuario o contraseña incorrectos', 'error')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('auth/login.html')
 
-@auth_bp.route('/logout')
-@login_required
-def logout():
-    print(f"User {current_user.username} logged out")
-    logout_user()
-    return redirect(url_for('auth.login'))
-
-@auth_bp.route('/register', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['GET', 'POST'])  
 def register():
     if request.method == 'POST':
         username = request.form.get('username')
@@ -37,12 +43,34 @@ def register():
         role = request.form.get('role')
         
         if User.get_by_username(username):
-            flash('Username already exists.', 'danger')
-            return render_template('register.html')
+            flash('El nombre de usuario ya existe. Por favor elija otro.', 'error')
+            return render_template('auth/register.html')
             
-        user = User.create(username, password, role)
-        print(f"Created new user: {username} with role: {role}")
-        login_user(user)
-        flash('Registration successful!', 'success')
-        return redirect(url_for('main.operations'))
-    return render_template('register.html')
+        try:
+            user = User.create(username, password, role)
+            if user and user.get_id():  # Verificar que el usuario tenga ID usando get_id()
+                print(f"Created new user with ID: {user.get_id()}")
+                if login_user(user, remember=True):  # Mantener la sesión
+                    print(f"User {user.username} logged in successfully after registration")
+                    flash('Registro exitoso!', 'success')
+                    return redirect(url_for('main.operations'))
+                else:
+                    print("Failed to login after registration")
+            else:
+                print("User created but no ID assigned")
+                flash('Error al crear el usuario', 'error')
+        except Exception as e:
+            print(f"Error during registration: {str(e)}")
+            flash('Error al crear el usuario', 'error')
+            
+        return redirect(url_for('auth.login'))
+            
+    return render_template('auth/register.html')
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    if current_user.is_authenticated:
+        print(f"User {current_user.username} with ID {current_user.get_id()} logged out")
+    logout_user()
+    return redirect(url_for('auth.login'))

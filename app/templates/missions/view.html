@@ -49,7 +49,7 @@
     {% extends "base.html" %}
     {% block content %}
     <div class="container">
-        <h2>View Missions for {{ campaign.name }}</h2>
+        <h2>{% if campaign %}View Missions for {{ campaign.name }}{% else %}All Missions{% endif %}</h2>
         <ul>
             {% for mission in missions %}
             <li class="mission-item">
@@ -59,27 +59,31 @@
                 <p>Reward: {{ mission.rewards }}</p>
                 <div class="button-group">
                     {% if current_user.role == 'master' %}
-                    <a href="{{ url_for('missions.edit_mission', mission_id=mission.id) }}" class="btn edit-button">Edit</a>
-                    <form method="POST" action="{{ url_for('missions.delete_mission', mission_id=mission.id) }}" style="display:inline;">
+                    <a href="{{ url_for('missions.edit_mission', campaign_id=campaign.id if campaign else '', mission_id=mission.full_id) }}" class="btn edit-button">Edit</a>
+                    <form method="POST" action="{{ url_for('missions.delete_mission', mission_id=mission.full_id) }}" style="display:inline;">
                         <button type="submit" class="btn delete-button">Delete</button>
                     </form>
                     {% endif %}
-                    {% if current_user.id in mission.voters %}
-                    <form method="POST" action="{{ url_for('missions.unvote_mission', mission_id=mission.id) }}" style="display:inline;">
-                        <button type="submit" class="btn unvote-button">Unvote</button>
+                    {% if current_user.username in mission.voters %}
+                    <form method="POST" action="{{ url_for('missions.unvote_mission', mission_id=mission.full_id) }}" style="display:inline;">
+                        <button type="submit" class="btn unvote-button">Remove Vote</button>
                     </form>
                     {% else %}
-                    <form method="POST" action="{{ url_for('missions.vote_mission', mission_id=mission.id) }}" style="display:inline;">
+                    <form method="POST" action="{{ url_for('missions.vote_mission', mission_id=mission.full_id) }}" style="display:inline;">
                         <button type="submit" class="btn vote-button">Vote</button>
                     </form>
                     {% endif %}
                 </div>
             </li>
             {% else %}
-            <li>No missions found for this campaign.</li>
+            <li>No missions found.</li>
             {% endfor %}
         </ul>
-        <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back</a>
+        {% if campaign %}
+        <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="back-button">Back to Campaign</a>
+        {% else %}
+        <a href="{{ url_for('main.operations') }}" class="back-button">Back to Operations</a>
+        {% endif %}
     </div>
     {% endblock %}
 </body>

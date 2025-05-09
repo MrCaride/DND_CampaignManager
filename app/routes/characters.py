@@ -22,7 +22,7 @@ def create_character():
             race=request.form.get('race'),
             character_class=request.form.get('character_class'),
             level=request.form.get('level'),
-            user_id=current_user.id,
+            user_id=str(current_user._oid),  # Use _oid instead of id
             user_username=current_user.username,
             strength=request.form.get('strength'),
             dexterity=request.form.get('dexterity'),
@@ -43,7 +43,7 @@ def create_character():
 @login_required
 def view_character(character_id):
     character = Character.get_by_id(character_id)
-    if character and character.user_id == current_user.id:
+    if character and str(character.user_id) == str(current_user._oid):  # Compare using _oid
         return render_template('characters/view.html', character=character)
     else:
         flash('You do not have permission to view this character.', 'danger')
@@ -53,7 +53,7 @@ def view_character(character_id):
 @login_required
 def edit_character(character_id):
     character = Character.get_by_id(character_id)
-    if character and character.user_id == current_user.id:
+    if character and str(character.user_id) == str(current_user._oid):  # Compare using _oid
         if request.method == 'POST':
             character.name = request.form.get('name')
             character.race = request.form.get('race')
@@ -81,10 +81,12 @@ def edit_character(character_id):
 @login_required
 def delete_character(character_id):
     character = Character.get_by_id(character_id)
-    if character and character.user_id == current_user.id:
-        # En Sirope, necesitamos mantener una referencia al objeto y borrarlo después
-        db._r.delete(f"{db._Sirope__key_prefix}:{character.__class__.__name__}:{character.id}")
-        flash('Character deleted successfully!', 'success')
+    if character and str(character.user_id) == str(current_user._oid):  # Compare using _oid
+        if hasattr(character, '_id') and character._id:
+            db.delete(character._id)  # Pass the OID instead of the object
+            flash('Character deleted successfully!', 'success')
+        else:
+            flash('Character does not have a valid ID.', 'danger')
     else:
         flash('You do not have permission to delete this character.', 'danger')
     return redirect(url_for('characters.list_characters'))

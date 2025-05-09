@@ -77,7 +77,7 @@
             <label for="allowed_players">Allowed Players:</label>
             <select id="allowed_players" name="allowed_players" multiple>
                 {% for player in players %}
-                <option value="{{ player.id }}" {% if player.id in campaign.allowed_players %}selected{% endif %}>{{ player.username }}</option>
+                    <option value="{{ player.username }}" {% if player.username in campaign.allowed_players %}selected{% endif %}>{{ player.username }}</option>
                 {% endfor %}
             </select>
             <button type="submit">Update</button>

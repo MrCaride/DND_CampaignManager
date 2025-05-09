@@ -3,7 +3,6 @@ from app.models.user import User
 from app.models.character import Character
 from app.models.campaign import Campaign
 from app.models.mission import Mission
-from sirope import OID
 import random
 
 app = create_app()
@@ -23,9 +22,15 @@ def create_initial_users():
     created_users = []
     for user_data in users:
         if not User.get_by_username(user_data["username"]):
-            user = User.create(user_data["username"], user_data["password"], user_data["role"])
-            created_users.append(user)
-            print(f"Created user: {user.username}")
+            user = User.create(username=user_data["username"], 
+                             password=user_data["password"], 
+                             role=user_data["role"])
+            # Verificar que el usuario tiene un ID asignado
+            if hasattr(user, '_oid') and user._oid:
+                print(f"Created user: {user.username} with ID: {user._oid}")
+                created_users.append(user)
+            else:
+                print(f"Warning: User {user.username} created without ID")
         else:
             print(f"User {user_data['username']} already exists")
     return created_users
@@ -45,8 +50,14 @@ def create_initial_data():
     created_users = {}
     for user_data in users:
         if not User.get_by_username(user_data["username"]):
-            user = User.create(user_data["username"], user_data["password"], user_data["role"])
-            created_users[user.username] = user
+            user = User.create(username=user_data["username"],
+                             password=user_data["password"],
+                             role=user_data["role"])
+            if hasattr(user, '_oid') and user._oid:
+                print(f"Created user: {user.username} with ID: {user._oid}")
+                created_users[user.username] = user
+            else:
+                print(f"Warning: User {user.username} created without ID")
 
     # Create generic campaigns
     campaigns_data = [
@@ -65,14 +76,16 @@ def create_initial_data():
         existing = Campaign.get_by_name(name)
         if not existing:
             master = User.get_by_username(campaign_data["master_username"])
-            if master:
+            if master and master._oid:  # Verificar que el master tiene ID
                 campaign = Campaign.create(
                     name=name,
                     is_public=campaign_data["is_public"],
-                    master_id=master.id,
+                    master_id=str(master._oid),  # Usar el ID correcto
                     allowed_players=campaign_data.get("allowed_players", [])
                 )
-                created_campaigns[name] = campaign
+                if hasattr(campaign, '_id') and campaign._id:
+                    print(f"Created campaign: {campaign.name} with ID: {campaign._id}")
+                    created_campaigns[name] = campaign
         else:
             created_campaigns[name] = existing
 
@@ -88,16 +101,17 @@ def create_initial_data():
 
     for character_data in characters:
         user = User.get_by_username(character_data["user_username"])
-        if user:
+        if user and user._oid:  # Verificar que el usuario tiene ID
             character = Character.create(
                 name=character_data["name"],
                 race=character_data["race"],
                 character_class=character_data["character_class"],
                 level=character_data["level"],
-                user_id=user.id,
+                user_id=str(user._oid),  # Usar el ID correcto
                 user_username=user.username
             )
-            print(f"Created character: {character.name} for user: {user.username}")
+            if hasattr(character, '_id') and character._id:
+                print(f"Created character: {character.name} for user: {user.username} with ID: {character._id}")
 
     # Create missions
     missions = [
@@ -115,7 +129,7 @@ def create_initial_data():
 
     for mission_data in missions:
         campaign = created_campaigns.get(mission_data["campaign_name"])
-        if campaign:
+        if campaign and hasattr(campaign, '_id') and campaign._id:  # Verificar que la campaña tiene ID
             rewards = random.randint(50, 500)
             mission = Mission.create(
                 name=mission_data["name"],
@@ -123,9 +137,11 @@ def create_initial_data():
                 campaign_name=mission_data["campaign_name"],
                 rewards=rewards
             )
-            print(f"Created mission: {mission_data['name']} with rewards: {rewards}")
+            if hasattr(mission, '_id') and mission._id:
+                print(f"Created mission: {mission_data['name']} with ID: {mission._id}")
 
 if __name__ == "__main__":
-    clean_database()
-    create_initial_users()
-    create_initial_data()
+    with app.app_context():
+        clean_database()
+        create_initial_users()
+        create_initial_data()

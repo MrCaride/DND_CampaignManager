@@ -6,87 +6,157 @@ from app import db
 
 missions_bp = Blueprint('missions', __name__)
 
-@missions_bp.route('/<int:campaign_id>/manage', methods=['GET', 'POST'])
+@missions_bp.route('/missions/<campaign_id>/view')
+@login_required
+def view_missions(campaign_id):
+    print(f"Viewing missions for campaign ID: {campaign_id}")
+    campaign = Campaign.get_by_id(campaign_id)
+    if not campaign:
+        print(f"Campaign not found with ID: {campaign_id}")
+        flash('Campaign not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+
+    print(f"Found campaign: {campaign.name}")
+    missions = Mission.get_by_campaign(campaign.name)
+    print(f"Found missions: {[mission.name for mission in missions] if missions else 'No missions'}")
+    return render_template('missions/view.html', campaign=campaign, missions=missions)
+
+@missions_bp.route('/missions/<campaign_id>/manage', methods=['GET', 'POST'])
 @login_required
 def manage_missions(campaign_id):
+    if current_user.role != 'master':
+        flash('Only masters can manage missions.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+
     campaign = Campaign.get_by_id(campaign_id)
-    if campaign.master_id != current_user.id:
-        flash('You do not have permission to manage missions for this campaign.', 'danger')
-        return redirect(url_for('campaigns.play_campaign', campaign_id=campaign_id))
+    if not campaign:
+        flash('Campaign not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
 
     if request.method == 'POST':
-        name = request.form['name']
-        description = request.form['description']
-        rewards = request.form.get('rewards', '')
-        new_mission = Mission.create(name, description, campaign.name, rewards)
+        mission_name = request.form.get('name')
+        mission_description = request.form.get('description')
+        mission_rewards = request.form.get('rewards', 0)
+
+        Mission.create(
+            name=mission_name,
+            description=mission_description,
+            campaign_name=campaign.name,
+            rewards=mission_rewards
+        )
         flash('Mission created successfully!', 'success')
-        return redirect(url_for('missions.manage_missions', campaign_id=campaign_id))
-    
-    # Filter missions by campaign_name
+        return redirect(url_for('missions.manage_missions', campaign_id=campaign._id))
+
     missions = Mission.get_by_campaign(campaign.name)
     return render_template('missions/manage.html', campaign=campaign, missions=missions)
 
-@missions_bp.route('/<int:mission_id>/edit', methods=['GET', 'POST'])
+@missions_bp.route('/missions/<campaign_id>/edit/<mission_id>', methods=['GET', 'POST'])
 @login_required
-def edit_mission(mission_id):
-    mission = Mission.get_by_id(mission_id)
-    campaign = Campaign.get_by_name(mission.campaign_name)
-    if campaign.master_id != current_user.id:
-        flash('You do not have permission to edit this mission.', 'danger')
-        return redirect(url_for('campaigns.play_campaign', campaign_id=campaign.id))
-
-    if request.method == 'POST':
-        mission.name = request.form['name']
-        mission.description = request.form['description']
-        mission.rewards = request.form.get('rewards', '')
-        db.save(mission)
-        flash('Mission updated successfully!', 'success')
-        return redirect(url_for('missions.manage_missions', campaign_id=campaign.id))
-    
-    return render_template('missions/edit.html', mission=mission, campaign=campaign)
-
-@missions_bp.route('/<int:mission_id>/delete', methods=['POST'])
-@login_required
-def delete_mission(mission_id):
-    mission = Mission.get_by_id(mission_id)
-    campaign = Campaign.get_by_name(mission.campaign_name)
-    if campaign.master_id != current_user.id:
-        flash('You do not have permission to delete this mission.', 'danger')
-        return redirect(url_for('campaigns.play_campaign', campaign_id=campaign.id))
-
-    # En Sirope, eliminamos la referencia al objeto
-    db._r.delete(f"{db._Sirope__key_prefix}:{mission.__class__.__name__}:{mission.id}")
-    flash('Mission deleted successfully!', 'success')
-    return redirect(url_for('missions.manage_missions', campaign_id=campaign.id))
-
-@missions_bp.route('/<int:campaign_id>/view', methods=['GET'])
-@login_required
-def view_missions(campaign_id):
-    campaign = Campaign.get_by_id(campaign_id)
-    if not campaign:
-        flash('Campaign not found', 'danger')
+def edit_mission(campaign_id, mission_id):
+    if current_user.role != 'master':
+        flash('Only masters can edit missions.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
-    missions = Mission.get_by_campaign(campaign.name)
-    return render_template('missions/view.html', campaign=campaign, missions=missions)
+    campaign = Campaign.get_by_id(campaign_id)
+    if not campaign:
+        flash('Campaign not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
 
-@missions_bp.route('/vote/<int:mission_id>', methods=['POST'])
+    mission = Mission.get_by_id(mission_id)
+    if not mission:
+        flash('Mission not found.', 'danger')
+        return redirect(url_for('missions.manage_missions', campaign_id=campaign._id))
+
+    if request.method == 'POST':
+        mission.name = request.form.get('name')
+        mission.description = request.form.get('description')
+        mission.rewards = request.form.get('rewards', 0)
+        db.save(mission)
+        flash('Mission updated successfully!', 'success')
+        return redirect(url_for('missions.manage_missions', campaign_id=campaign._id))
+
+    return render_template('missions/edit.html', campaign=campaign, mission=mission)
+
+@missions_bp.route('/missions/delete/<campaign_id>/<mission_id>', methods=['POST'])
+@login_required
+def delete_mission(campaign_id, mission_id):
+    mission = Mission.get_by_id(mission_id)
+    if not mission:
+        flash('Mission not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+
+    # Get the campaign by ID instead of name
+    campaign = Campaign.get_by_id(campaign_id)
+    if not campaign:
+        flash('Campaign not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+
+    if hasattr(mission, '_id') and mission._id:
+        db.delete(mission._id)
+        flash('Mission deleted successfully!', 'success')
+    else:
+        flash('Mission does not have a valid ID.', 'danger')
+    
+    # Redirect back to manage missions using the campaign_id from the URL
+    return redirect(url_for('missions.manage_missions', campaign_id=campaign_id))
+
+@missions_bp.route('/vote/<mission_id>', methods=['POST'])
 @login_required
 def vote_mission(mission_id):
-    mission = Mission.get_by_id(mission_id)
-    mission.vote(current_user)
-    campaign = Campaign.get_by_name(mission.campaign_name)
-    flash('Voted successfully!', 'success')
-    return redirect(url_for('missions.view_missions', campaign_id=campaign.id))
+    print(f"Attempting to vote for mission with ID: {mission_id}")
+    if not mission_id:
+        print("No mission_id provided")
+        flash('Mission not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
 
-@missions_bp.route('/unvote/<int:mission_id>', methods=['POST'])
+    mission = Mission.get_by_id(mission_id)
+    
+    if not mission:
+        print(f"Mission not found with ID: {mission_id}")
+        flash('Mission not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+
+    print(f"Found mission: {mission.name}")
+    mission.vote(current_user)
+    
+    campaign = Campaign.get_by_name(mission.campaign_name)
+    if not campaign:
+        print(f"Campaign not found for mission: {mission.name}")
+        flash('Campaign not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+        
+    print(f"Redirecting to campaign: {campaign.name}")
+    flash('Voted successfully!', 'success')
+    return redirect(url_for('missions.view_missions', campaign_id=campaign._id))
+
+@missions_bp.route('/unvote/<mission_id>', methods=['POST'])
 @login_required
 def unvote_mission(mission_id):
+    print(f"Attempting to unvote mission with ID: {mission_id}")
+    if not mission_id:
+        print("No mission_id provided")
+        flash('Mission not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+
     mission = Mission.get_by_id(mission_id)
+    
+    if not mission:
+        print(f"Mission not found with ID: {mission_id}")
+        flash('Mission not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+
+    print(f"Found mission: {mission.name}")
     mission.unvote(current_user)
+    
     campaign = Campaign.get_by_name(mission.campaign_name)
+    if not campaign:
+        print(f"Campaign not found for mission: {mission.name}")
+        flash('Campaign not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+        
+    print(f"Redirecting to campaign: {campaign.name}")
     flash('Vote removed successfully!', 'success')
-    return redirect(url_for('missions.view_missions', campaign_id=campaign.id))
+    return redirect(url_for('missions.view_missions', campaign_id=campaign._id))
 
 @missions_bp.route('/create', methods=['GET', 'POST'])
 @login_required
@@ -104,4 +174,4 @@ def create_mission():
 @login_required
 def list_missions():
     missions = Mission.get_all()
-    return render_template('missions/list.html', missions=missions)
+    return render_template('missions/view.html', missions=missions, campaign=None)
