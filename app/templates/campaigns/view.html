@@ -1,12 +1,57 @@
 {% extends "base.html" %}
+
+{% block title %}{{ campaign.name }} - Gestiones y Mazmorras{% endblock %}
+
 {% block content %}
-<div class="container" style="max-width: 600px;">
-    <h2>{{ campaign.name }}</h2>
-    <div class="campaign-details">
-        <p><strong>Master:</strong> {{ campaign.master_id }}</p>
-        <p><strong>Public:</strong> {{ campaign.is_public }}</p>
-        <p><strong>Allowed Players:</strong> {{ campaign.allowed_players | join(', ') }}</p>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('campaigns.list_campaigns') }}" class="text-decoration-none">Campaigns</a></li>
+                    <li class="breadcrumb-item active">{{ campaign.name }}</li>
+                </ol>
+            </nav>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">{{ campaign.name }}</h2>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="text-muted mb-1">Game Master</div>
+                            <div class="fw-bold">{{ master.username }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-muted mb-1">Status</div>
+                            <div class="fw-bold">
+                                {% if campaign.is_public %}
+                                <span class="badge bg-success">Public</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Private</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted mb-1">Allowed Players</div>
+                            <div>
+                                {% if campaign.allowed_players %}
+                                    {% for player in campaign.allowed_players %}
+                                        <span class="badge bg-primary me-1">{{ player }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">No players allowed yet</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Back to Campaigns</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn back-button" style="margin-top: 20px; padding: 10px; background-color: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block;">Back</a>
 </div>
 {% endblock %}

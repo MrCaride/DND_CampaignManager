@@ -1,53 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaign Vision</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <style>
-        .campaign-name {
-            text-align: center;
-            font-size: 2em;
-            margin-top: 20px;
-        }
-        .operations {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .characters-list {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .characters-list ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .characters-list li {
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="campaign-name">
-            <h2>{{ campaign.name }}</h2>
-        </div>
-        <div class="characters-list">
-            <h3>Characters in this campaign:</h3>
-            <ul>
-                {% for character in characters %}
-                <li>{{ character.name }} ({{ character.user.username }})</li>
-                {% endfor %}
-            </ul>
-        </div>
-        <div class="operations">
-            {% if current_user.role == 'master' %}
-            <a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="btn btn-primary">Manage Missions</a>
-            {% else %}
-            <a href="{{ url_for('missions.view_missions', campaign_id=campaign.id) }}" class="btn btn-primary">View Missions</a>
-            {% endif %}
+{% extends "base.html" %}
+
+{% block title %}{{ campaign.name }} - Play - Gestiones y Mazmorras{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('campaigns.list_campaigns') }}" class="text-decoration-none">Campaigns</a></li>
+                    <li class="breadcrumb-item active">{{ campaign.name }}</li>
+                </ol>
+            </nav>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">{{ campaign.name }}</h2>
+                    
+                    <div class="text-center mb-4">
+                        {% if current_user.role == 'master' %}
+                        <a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="btn btn-primary">Manage Missions</a>
+                        {% else %}
+                        <a href="{{ url_for('missions.view_missions', campaign_id=campaign.id) }}" class="btn btn-primary">View Missions</a>
+                        {% endif %}
+                    </div>
+
+                    <h3 class="h5 mb-3">Characters in Campaign</h3>
+                    <div class="list-group">
+                        {% for character in characters %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="fw-bold">{{ character.name }}</span>
+                                    <small class="text-muted ms-2">played by {{ character.user.username }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted p-3">
+                            <p class="mb-0">No characters in this campaign yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Back to Campaigns</a>
+            </div>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,99 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Campaign</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
-        h2 {
-            margin-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 5px;
-        }
-        select {
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .back-button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .back-button:hover {
-            background-color: #0056b3;
-        }
-        .join-button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .join-button:hover {
-            background-color: #218838;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Join Campaign: {{ campaign.name }}</h2>
-        <form method="POST" action="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}">
-            <div class="form-group">
-                <label for="character_id">Select Character:</label>
-                <select id="character_id" name="character_id" class="form-control" required>
-                    {% for character in characters %}
-                    <option value="{{ character.id }}">{{ character.name }}</option>
-                    {% endfor %}
-                </select>
+{% extends "base.html" %}
+
+{% block title %}Join {{ campaign.name }} - Gestiones y Mazmorras{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Join Campaign</h2>
+                    <h3 class="h5 text-center mb-4">{{ campaign.name }}</h3>
+                    
+                    <form method="POST" action="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}">
+                        <div class="mb-4">
+                            <label for="character_id" class="form-label">Select Character</label>
+                            <select class="form-select" id="character_id" name="character_id" required>
+                                {% for character in characters %}
+                                <option value="{{ character.id }}">{{ character.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Join Campaign</button>
+                            <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Back</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <button type="submit" class="join-button">Join</button>
-        </form>
-        <a href="{{ url_for('campaigns.list_campaigns') }}" class="back-button">Back</a>
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

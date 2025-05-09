@@ -38,8 +38,13 @@ def view_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
+    master = User.get_by_id(campaign.master_id)
+    if not master:
+        flash('Campaign master not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+    
     characters = Character.get_by_username(current_user.username)
-    return render_template('campaigns/view.html', campaign=campaign, characters=characters)
+    return render_template('campaigns/view.html', campaign=campaign, master=master, characters=characters)
 
 @campaigns_bp.route('/create', methods=['GET', 'POST'])
 @login_required
@@ -144,12 +149,17 @@ def play_campaign(campaign_id):
         flash('Campaign not found.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
+    master = User.get_by_id(campaign.master_id)
+    if not master:
+        flash('Campaign master not found.', 'danger')
+        return redirect(url_for('campaigns.list_campaigns'))
+    
     characters = Character.get_all()
     campaign_characters = [character for character in characters if character.campaign == campaign.name]
     print(f"Characters in this campaign: {[(char.name, char.user_username) for char in campaign_characters]}")
 
     missions = Mission.get_by_campaign(campaign.name)
     if current_user.role == 'master':
-        return render_template('campaigns/play_master.html', campaign=campaign, characters=campaign_characters, missions=missions)
+        return render_template('campaigns/play_master.html', campaign=campaign, master=master, characters=campaign_characters, missions=missions)
     else:
-        return render_template('campaigns/play_player.html', campaign=campaign, characters=campaign_characters, missions=missions)
+        return render_template('campaigns/play_player.html', campaign=campaign, master=master, characters=campaign_characters, missions=missions)

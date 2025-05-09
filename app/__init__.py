@@ -20,6 +20,13 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     login_manager.session_protection = 'strong'
+    
+    # Definir las rutas que no requieren autenticación
+    login_manager.login_message = 'Please log in to access this page.'
+    login_manager.blueprint_login_views = {
+        'main': None,  # Permitir acceso sin autenticación a las rutas del blueprint main
+        'auth': None   # Permitir acceso sin autenticación a las rutas de autenticación
+    }
 
     from .models.user import User
 
@@ -49,15 +56,11 @@ def create_app():
     from .routes.characters import characters_bp
     from .routes.campaigns import campaigns_bp
     from .routes.missions import missions_bp
-    from .routes import main
+    from .routes.main import main
 
     app.register_blueprint(characters_bp, url_prefix='/characters')
     app.register_blueprint(campaigns_bp, url_prefix='/campaigns')
     app.register_blueprint(missions_bp, url_prefix='')  # Remove the /missions prefix since it's already in the route
     app.register_blueprint(main)
-
-    @app.route('/')
-    def index():
-        return render_template('index.html')
 
     return app
