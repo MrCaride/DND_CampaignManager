@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Mission - {{ mission.name }} - Gestiones y Mazmorras{% endblock %}
+{% block title %}Editar misión - {{ mission.name }} - Gestiones y Mazmorras{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -10,31 +10,31 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="text-decoration-none">{{ campaign.name }}</a></li>
                     <li class="breadcrumb-item"><a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="text-decoration-none">Missions</a></li>
-                    <li class="breadcrumb-item active">Edit {{ mission.name }}</li>
+                    <li class="breadcrumb-item active">Editar {{ mission.name }}</li>
                 </ol>
             </nav>
 
             <div class="card">
                 <div class="card-header">
-                    <h2 class="h5 mb-0">Edit Mission</h2>
+                    <h2 class="h5 mb-0">Editar misión</h2>
                 </div>
                 <div class="card-body">
                     <form method="POST">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Mission Name</label>
+                            <label for="name" class="form-label">Nombre de misión</label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ mission.name }}" required>
                         </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
+                            <label for="description" class="form-label">Descripción</label>
                             <textarea class="form-control" id="description" name="description" rows="3" required>{{ mission.description }}</textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="rewards" class="form-label">Rewards</label>
+                            <label for="rewards" class="form-label">Recompensas</label>
                             <input type="text" class="form-control" id="rewards" name="rewards" value="{{ mission.rewards }}" required>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Update Mission</button>
+                            <button type="submit" class="btn btn-primary">Actualizar misión</button>
                         </div>
                     </form>
                 </div>

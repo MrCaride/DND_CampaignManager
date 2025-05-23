@@ -9,6 +9,7 @@ dnd-campaign-manager
 ├── app
 │   ├── __init__.py
 │   ├── auth.py
+│   ├── routes.py
 │   ├── models
 │   │   ├── user.py
 │   │   ├── character.py
@@ -19,32 +20,40 @@ dnd-campaign-manager
 │   │   ├── auth.py
 │   │   ├── characters.py
 │   │   ├── campaigns.py
-│   │   └── missions.py
+│   │   ├── missions.py
+│   │   └── main.py
 │   ├── templates
+│   │   ├── base.html
+│   │   ├── index.html
+│   │   ├── operations_master.html
+│   │   ├── operations_player.html
 │   │   ├── auth
 │   │   │   ├── login.html
 │   │   │   └── register.html
 │   │   ├── characters
 │   │   │   ├── create.html
 │   │   │   ├── edit.html
-│   │   │   └── list.html
+│   │   │   ├── list.html
+│   │   │   └── view.html
 │   │   ├── campaigns
 │   │   │   ├── create.html
 │   │   │   ├── edit.html
 │   │   │   ├── list.html
+│   │   │   ├── join.html
+│   │   │   ├── play.html
 │   │   │   ├── play_master.html
 │   │   │   ├── play_player.html
 │   │   │   └── view.html
-│   │   ├── missions
-│   │   │   ├── manage.html
-│   │   │   └── view.html
-│   │   └── index.html
-│   ├── static
-│   │   └── styles.css
-│   └── main.py
-├── create_users.py
+│   │   └── missions
+│   │       ├── edit.html
+│   │       ├── manage.html
+│   │       └── view.html
+│   └── static
+│       └── styles.css
 ├── app.py
+├── create_users.py
 ├── requirements.txt
+├── uninstall_all_packages.py
 └── README.md
 ```
 
@@ -52,6 +61,7 @@ dnd-campaign-manager
 - **app**: Contiene la aplicación principal de Flask.
   - **__init__.py**: Inicializa la aplicación Flask y la instancia de Sirope.
   - **auth.py**: Maneja la autenticación de usuarios.
+  - **routes.py**: Define las rutas de la aplicación.
   - **models**: Contiene los modelos de datos.
     - **user.py**: Modelo de usuario con gestión de autenticación.
     - **character.py**: Modelo de personaje con atributos y estadísticas.
@@ -62,12 +72,16 @@ dnd-campaign-manager
     - **characters.py**: Rutas para gestión de personajes.
     - **campaigns.py**: Rutas para gestión de campañas.
     - **missions.py**: Rutas para gestión de misiones.
+    - **main.py**: Rutas principales de la aplicación.
   - **templates**: Contiene las plantillas HTML.
   - **static**: Contiene archivos estáticos como CSS.
-  - **main.py**: Archivo principal de la aplicación.
-- **create_users.py**: Script para crear datos de prueba.
 - **app.py**: Punto de entrada de la aplicación.
+- **create_users.py**: Script para crear datos de prueba.
+- **migrate.py**: Manejo de migraciones de base de datos.
 - **requirements.txt**: Dependencias del proyecto.
+- **uninstall_all_packages.py**: Script para desinstalar todos los paquetes de Python.
+- **netlify.toml**: Configuración para despliegue en Netlify.
+- **README.md**: Documentación del proyecto.
 
 ## Configuración del Entorno
 
@@ -181,7 +195,7 @@ class Mission:
 ### Jugador
 - Crear y gestionar personajes
 - Unirse a campañas públicas
-- Solicitar unirse a campañas privadas
+- Solicitar unirse a campañas Privadas
 - Votar misiones
 - Ver detalles de campañas y misiones
 

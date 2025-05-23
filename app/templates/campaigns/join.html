@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Join {{ campaign.name }} - Gestiones y Mazmorras{% endblock %}
+{% block title %}Unirse {{ campaign.name }} - Gestiones y Mazmorras{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -8,12 +8,12 @@
         <div class="col-md-6 col-lg-4">
             <div class="card">
                 <div class="card-body">
-                    <h2 class="text-center mb-4">Join Campaign</h2>
+                    <h2 class="text-center mb-4">Unirse a Campaña</h2>
                     <h3 class="h5 text-center mb-4">{{ campaign.name }}</h3>
                     
                     <form method="POST" action="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}">
                         <div class="mb-4">
-                            <label for="character_id" class="form-label">Select Character</label>
+                            <label for="character_id" class="form-label">Selecciona Personaje</label>
                             <select class="form-select" id="character_id" name="character_id" required>
                                 {% for character in characters %}
                                 <option value="{{ character.id }}">{{ character.name }}</option>
@@ -21,8 +21,8 @@
                             </select>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">Join Campaign</button>
-                            <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Back</a>
+                            <button type="submit" class="btn btn-success">Unirse a Campaña</button>
+                            <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Volver</a>
                         </div>
                     </form>
                 </div>

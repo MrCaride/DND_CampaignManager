@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Campaigns - Gestiones y Mazmorras{% endblock %}
+{% block title %}Campañas - Gestiones y Mazmorras{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <h2 class="text-center mb-4">Manage Campaigns</h2>
+            <h2 class="text-center mb-4">Gestionar Campañas</h2>
 
             {% if current_user.role == 'master' %}
             <div class="list-group mb-4">
@@ -16,38 +16,38 @@
                         <div>
                             <span class="fw-bold">{{ campaign.name }}</span>
                             {% if campaign.is_public %}
-                            <span class="badge bg-success ms-2">Public</span>
+                            <span class="badge bg-success ms-2">Publica</span>
                             {% else %}
-                            <span class="badge bg-secondary ms-2">Private</span>
+                            <span class="badge bg-secondary ms-2">Privada</span>
                             {% endif %}
                         </div>
                         <div class="btn-group" role="group">
-                            <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn btn-outline-info">View</a>
-                            <a href="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}" class="btn btn-outline-warning">Edit</a>
+                            <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn btn-outline-info">Ver</a>
+                            <a href="{{ url_for('campaigns.edit_campaign', campaign_id=campaign.id) }}" class="btn btn-outline-warning">Editar</a>
                             <form method="POST" action="{{ url_for('campaigns.delete_campaign', campaign_id=campaign.id) }}" class="d-inline">
                                 <button type="submit" class="btn btn-outline-danger" 
-                                        onclick="return confirm('Are you sure you want to delete this campaign?');">Delete</button>
+                                        onclick="return confirm('¿Estas seguro de que quieres borrar la campaña?');">Borrar</button>
                             </form>
-                            <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn btn-primary">Play</a>
+                            <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn btn-primary">Jugar</a>
                         </div>
                     </div>
                 </div>
                 {% else %}
                 <div class="text-center text-muted p-4">
-                    <p class="mb-0">No campaigns created yet.</p>
+                    <p class="mb-0">Aun no hay  campañas creadas.</p>
                 </div>
                 {% endfor %}
             </div>
             <div class="d-flex justify-content-center gap-3">
-                <a href="{{ url_for('campaigns.create_campaign') }}" class="btn btn-success">Create Campaign</a>
-                <a href="{{ url_for('main.operations') }}" class="btn btn-secondary">Back</a>
+                <a href="{{ url_for('campaigns.create_campaign') }}" class="btn btn-success">Crear Campaña/a>
+                <a href="{{ url_for('main.operations') }}" class="btn btn-secondary">Volver</a>
             </div>
 
             {% else %}
             
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3 class="h5 mb-0">Joined Campaigns</h3>
+                    <h3 class="h5 mb-0">Campañas unidas</h3>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
@@ -57,20 +57,20 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="fw-bold">{{ campaign.name }}</span>
-                                    <small class="text-muted ms-2">as {{ character.name }}</small>
+                                    <small class="text-muted ms-2">como {{ character.name }}</small>
                                 </div>
                                 <div class="btn-group" role="group">
                                     <form method="POST" action="{{ url_for('campaigns.leave_campaign', campaign_id=campaign.id) }}" class="d-inline">
                                         <button type="submit" class="btn btn-outline-danger" 
-                                                onclick="return confirm('Are you sure you want to leave this campaign?');">Leave</button>
+                                                onclick="return confirm('¿Estas seguro de que quieres salir de la campaña?');">Salir</button>
                                     </form>
-                                    <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn btn-primary">Play</a>
+                                    <a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign.id) }}" class="btn btn-primary">Jugar</a>
                                 </div>
                             </div>
                         </div>
                         {% else %}
                         <div class="text-center text-muted p-4">
-                            <p class="mb-0">You haven't joined any campaigns yet.</p>
+                            <p class="mb-0">Aun no te has unido a ninguna campaña.</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -79,7 +79,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="h5 mb-0">Available Campaigns</h3>
+                    <h3 class="h5 mb-0">Campañas disponibles</h3>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
@@ -97,21 +97,21 @@
                                     <div>
                                         <span class="fw-bold">{{ campaign.name }}</span>
                                         {% if campaign.is_public %}
-                                        <span class="badge bg-success ms-2">Public</span>
+                                        <span class="badge bg-success ms-2">Publica</span>
                                         {% else %}
-                                        <span class="badge bg-secondary ms-2">Private</span>
+                                        <span class="badge bg-secondary ms-2">Privada</span>
                                         {% endif %}
                                     </div>
                                     <div class="btn-group" role="group">
-                                        <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn btn-outline-info">View</a>
-                                        <a href="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}" class="btn btn-success">Join</a>
+                                        <a href="{{ url_for('campaigns.view_campaign', campaign_id=campaign.id) }}" class="btn btn-outline-info">Ver</a>
+                                        <a href="{{ url_for('campaigns.join_campaign', campaign_id=campaign.id) }}" class="btn btn-success">Unirse</a>
                                     </div>
                                 </div>
                             </div>
                             {% endfor %}
                         {% else %}
                             <div class="text-center text-muted p-4">
-                                <p class="mb-0">No available campaigns to join.</p>
+                                <p class="mb-0">No hay campañas disponibles para unirse</p>
                             </div>
                         {% endif %}
                     </div>
@@ -119,7 +119,7 @@
             </div>
 
             <div class="text-center mt-4">
-                <a href="{{ url_for('main.operations') }}" class="btn btn-secondary">Back</a>
+                <a href="{{ url_for('main.operations') }}" class="btn btn-secondary">Volver</a>
             </div>
             {% endif %}
         </div>

@@ -13,7 +13,7 @@ def view_missions(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
         print(f"Campaign not found with ID: {campaign_id}")
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     print(f"Found campaign: {campaign.name}")
@@ -25,12 +25,12 @@ def view_missions(campaign_id):
 @login_required
 def manage_missions(campaign_id):
     if current_user.role != 'master':
-        flash('Only masters can manage missions.', 'danger')
+        flash('Solo los masters pueden gestionar campañas', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     if request.method == 'POST':
@@ -44,7 +44,7 @@ def manage_missions(campaign_id):
             campaign_name=campaign.name,
             rewards=mission_rewards
         )
-        flash('Mission created successfully!', 'success')
+        flash('Misión creada con éxito', 'success')
         return redirect(url_for('missions.manage_missions', campaign_id=campaign._id))
 
     missions = Mission.get_by_campaign(campaign.name)
@@ -54,17 +54,17 @@ def manage_missions(campaign_id):
 @login_required
 def edit_mission(campaign_id, mission_id):
     if current_user.role != 'master':
-        flash('Only masters can edit missions.', 'danger')
+        flash('Solo los mastes pueden editar misiones', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     mission = Mission.get_by_id(mission_id)
     if not mission:
-        flash('Mission not found.', 'danger')
+        flash('Misión no encontrada', 'danger')
         return redirect(url_for('missions.manage_missions', campaign_id=campaign._id))
 
     if request.method == 'POST':
@@ -72,7 +72,7 @@ def edit_mission(campaign_id, mission_id):
         mission.description = request.form.get('description')
         mission.rewards = request.form.get('rewards', 0)
         db.save(mission)
-        flash('Mission updated successfully!', 'success')
+        flash('Misión actualizada con éxito', 'success')
         return redirect(url_for('missions.manage_missions', campaign_id=campaign._id))
 
     return render_template('missions/edit.html', campaign=campaign, mission=mission)
@@ -82,20 +82,20 @@ def edit_mission(campaign_id, mission_id):
 def delete_mission(campaign_id, mission_id):
     mission = Mission.get_by_id(mission_id)
     if not mission:
-        flash('Mission not found.', 'danger')
+        flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     # Get the campaign by ID instead of name
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     if hasattr(mission, '_id') and mission._id:
         db.delete(mission._id)
-        flash('Mission deleted successfully!', 'success')
+        flash('Misión borrada con éxito', 'success')
     else:
-        flash('Mission does not have a valid ID.', 'danger')
+        flash('Misión no tiene un ID válido', 'danger')
     
     # Redirect back to manage missions using the campaign_id from the URL
     return redirect(url_for('missions.manage_missions', campaign_id=campaign_id))
@@ -106,14 +106,14 @@ def vote_mission(mission_id):
     print(f"Attempting to vote for mission with ID: {mission_id}")
     if not mission_id:
         print("No mission_id provided")
-        flash('Mission not found.', 'danger')
+        flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     mission = Mission.get_by_id(mission_id)
     
     if not mission:
         print(f"Mission not found with ID: {mission_id}")
-        flash('Mission not found.', 'danger')
+        flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     print(f"Found mission: {mission.name}")
@@ -122,11 +122,11 @@ def vote_mission(mission_id):
     campaign = Campaign.get_by_name(mission.campaign_name)
     if not campaign:
         print(f"Campaign not found for mission: {mission.name}")
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
         
     print(f"Redirecting to campaign: {campaign.name}")
-    flash('Voted successfully!', 'success')
+    flash('Votación exitosa', 'success')
     return redirect(url_for('missions.view_missions', campaign_id=campaign._id))
 
 @missions_bp.route('/unvote/<mission_id>', methods=['POST'])
@@ -135,14 +135,14 @@ def unvote_mission(mission_id):
     print(f"Attempting to unvote mission with ID: {mission_id}")
     if not mission_id:
         print("No mission_id provided")
-        flash('Mission not found.', 'danger')
+        flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     mission = Mission.get_by_id(mission_id)
     
     if not mission:
         print(f"Mission not found with ID: {mission_id}")
-        flash('Mission not found.', 'danger')
+        flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     print(f"Found mission: {mission.name}")
@@ -151,11 +151,11 @@ def unvote_mission(mission_id):
     campaign = Campaign.get_by_name(mission.campaign_name)
     if not campaign:
         print(f"Campaign not found for mission: {mission.name}")
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
         
     print(f"Redirecting to campaign: {campaign.name}")
-    flash('Vote removed successfully!', 'success')
+    flash('Voto eliminado con éxito', 'success')
     return redirect(url_for('missions.view_missions', campaign_id=campaign._id))
 
 @missions_bp.route('/create', methods=['GET', 'POST'])
@@ -166,7 +166,7 @@ def create_mission():
         description = request.form['description']
         rewards = request.form.get('rewards', '')
         new_mission = Mission.create(name, description, rewards)
-        flash('Mission created successfully!', 'success')
+        flash('Misión creada con éxito', 'success')
         return redirect(url_for('missions.list_missions'))
     return render_template('missions/create.html')
 

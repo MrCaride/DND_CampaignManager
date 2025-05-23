@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Manage Missions - {{ campaign.name }}{% endblock %}
+{% block title %}Gestionar Misiones - {{ campaign.name }}{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -9,30 +9,30 @@
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ url_for('campaigns.play_campaign', campaign_id=campaign._id) }}" class="text-decoration-none">{{ campaign.name }}</a></li>
-                    <li class="breadcrumb-item active">Manage Missions</li>
+                    <li class="breadcrumb-item active">Gestionar misiones</li>
                 </ol>
             </nav>
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h2 class="h5 mb-0">Create New Mission</h2>
+                    <h2 class="h5 mb-0">Crear nuevas misiones</h2>
                 </div>
                 <div class="card-body">
                     <form method="POST">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Mission Name</label>
+                            <label for="name" class="form-label">Nombre de misión</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
+                            <label for="description" class="form-label">Descripción</label>
                             <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="reward" class="form-label">Reward</label>
+                            <label for="reward" class="form-label">Recompensas</label>
                             <input type="text" class="form-control" id="reward" name="reward" required>
                         </div>
                         <div class="text-end">
-                            <button type="submit" class="btn btn-primary">Create Mission</button>
+                            <button type="submit" class="btn btn-primary">Crear misión</button>
                         </div>
                     </form>
                 </div>
@@ -40,7 +40,7 @@
 
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h2 class="h5 mb-0">Existing Missions</h2>
+                    <h2 class="h5 mb-0">Misiones existentes</h2>
                 </div>
                 <div class="card-body">
                     {% if missions %}
@@ -53,15 +53,15 @@
                                         <p class="mb-1 small">{{ mission.description }}</p>
                                         <div class="text-muted small">
                                             <span class="me-3">Votes: {{ mission.votes }}</span>
-                                            <span>Reward: {{ mission.rewards }}</span>
+                                            <span>Recompensas: {{ mission.rewards }}</span>
                                         </div>
                                     </div>
                                     <div class="btn-group">
                                         <a href="{{ url_for('missions.edit_mission', campaign_id=campaign._id, mission_id=mission._id) }}" 
-                                           class="btn btn-outline-warning btn-sm">Edit</a>
+                                           class="btn btn-outline-warning btn-sm">Editar</a>
                                         <form method="POST" action="{{ url_for('missions.delete_mission', campaign_id=campaign._id, mission_id=mission._id) }}" 
                                               class="d-inline">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Borrar</button>
                                         </form>
                                     </div>
                                 </div>
@@ -69,7 +69,7 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted text-center mb-0">No missions created yet.</p>
+                        <p class="text-muted text-center mb-0">Aun no se han creado misiones.</p>
                     {% endif %}
                 </div>
             </div>

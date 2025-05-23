@@ -46,7 +46,7 @@ def view_character(character_id):
     if character and str(character.user_id) == str(current_user._oid):  # Compare using _oid
         return render_template('characters/view.html', character=character)
     else:
-        flash('You do not have permission to view this character.', 'danger')
+        flash('No tienes permisos para ver este personaje', 'danger')
         return redirect(url_for('characters.list_characters'))
 
 @characters_bp.route('/characters/edit/<character_id>', methods=['GET', 'POST'])
@@ -70,11 +70,11 @@ def edit_character(character_id):
             character.hit_points = request.form.get('hit_points')
             character.speed = request.form.get('speed')
             db.save(character)
-            flash('Character updated successfully!', 'success')
+            flash('Personaje actualizado con éxito', 'success')
             return redirect(url_for('characters.list_characters'))
         return render_template('characters/edit.html', character=character)
     else:
-        flash('You do not have permission to edit this character.', 'danger')
+        flash('No tienes permisos para editar este personaje', 'danger')
         return redirect(url_for('characters.list_characters'))
 
 @characters_bp.route('/characters/delete/<character_id>', methods=['POST'])
@@ -84,9 +84,9 @@ def delete_character(character_id):
     if character and str(character.user_id) == str(current_user._oid):  # Compare using _oid
         if hasattr(character, '_id') and character._id:
             db.delete(character._id)  # Pass the OID instead of the object
-            flash('Character deleted successfully!', 'success')
+            flash('Personaje borrado con exito', 'success')
         else:
-            flash('Character does not have a valid ID.', 'danger')
+            flash('Personaje no tiene un ID valido', 'danger')
     else:
-        flash('You do not have permission to delete this character.', 'danger')
+        flash('No tienes permisos para borrar este personaje', 'danger')
     return redirect(url_for('characters.list_characters'))

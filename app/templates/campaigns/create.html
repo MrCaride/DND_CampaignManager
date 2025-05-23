@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Create Campaign - Gestiones y Mazmorras{% endblock %}
+{% block title %}Crear Campaña - Gestiones y Mazmorras{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -8,19 +8,19 @@
         <div class="col-md-6 col-lg-4">
             <div class="card">
                 <div class="card-body">
-                    <h2 class="text-center mb-4">Create Campaign</h2>
+                    <h2 class="text-center mb-4">Crear Campaña</h2>
                     <form method="POST" action="{{ url_for('campaigns.create_campaign') }}">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Campaign Name</label>
+                            <label for="name" class="form-label">Nombre de Campaña</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-4 form-check">
                             <input type="checkbox" class="form-check-input" id="is_public" name="is_public">
-                            <label class="form-check-label" for="is_public">Public Campaign</label>
+                            <label class="form-check-label" for="is_public">Campaña pública</label>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Create Campaign</button>
-                            <a href="{{ url_for('main.operations') }}" class="btn btn-secondary">Back</a>
+                            <button type="submit" class="btn btn-primary">Crear Campaña</button>
+                            <a href="{{ url_for('main.operations') }}" class="btn btn-secondary">Volver</a>
                         </div>
                     </form>
                 </div>

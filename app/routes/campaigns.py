@@ -35,12 +35,12 @@ def list_campaigns():
 def view_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
     master = User.get_by_id(campaign.master_id)
     if not master:
-        flash('Campaign master not found.', 'danger')
+        flash('Master de la campaña no encontrado.', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
     characters = Character.get_by_username(current_user.username)
@@ -50,14 +50,14 @@ def view_campaign(campaign_id):
 @login_required
 def create_campaign():
     if current_user.role != 'master':
-        flash('You do not have permission to create a campaign.', 'danger')
+        flash('No tienes permiso para crear campañas', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     if request.method == 'POST':
         name = request.form['name']
         is_public = 'is_public' in request.form
         new_campaign = Campaign.create(name=name, is_public=is_public, master_id=str(current_user._oid))
-        flash('Campaign created successfully!', 'success')
+        flash('Campaña creada con éxito', 'success')
         return redirect(url_for('campaigns.list_campaigns'))
     return render_template('campaigns/create.html')
 
@@ -66,7 +66,7 @@ def create_campaign():
 def edit_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     if request.method == 'POST':
@@ -76,7 +76,7 @@ def edit_campaign(campaign_id):
         campaign.allowed_players = request.form.getlist('allowed_players')
         print(f"Updating campaign {campaign.name} with allowed players: {campaign.allowed_players}")
         db.save(campaign)
-        flash('Campaign updated successfully!', 'success')
+        flash('Campaña actualziada con exito', 'success')
         return redirect(url_for('campaigns.list_campaigns'))
     
     players = [user for user in User.get_all() if user.role != 'master']
@@ -87,14 +87,14 @@ def edit_campaign(campaign_id):
 def delete_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
     if hasattr(campaign, '_id') and campaign._id:
         db.delete(campaign._id)  # Pass the OID instead of the object
-        flash('Campaign deleted successfully!', 'success')
+        flash('Campaña borrada con exito', 'success')
     else:
-        flash('Campaign does not have a valid ID.', 'danger')
+        flash('Campaña no tiene un ID válido', 'danger')
     return redirect(url_for('campaigns.list_campaigns'))
 
 @campaigns_bp.route('/join/<campaign_id>', methods=['GET', 'POST'])
@@ -102,7 +102,7 @@ def delete_campaign(campaign_id):
 def join_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     if request.method == 'POST':
@@ -110,13 +110,13 @@ def join_campaign(campaign_id):
         character = Character.get_by_id(character_id)
         if character and str(character.user_id) == str(current_user._oid):  # Compare using _oid
             if character.campaign:
-                flash('This character is already in another campaign.', 'danger')
+                flash('Este personaje ya pertenece a otra campaña', 'danger')
                 return redirect(url_for('campaigns.list_campaigns'))
             character.campaign = campaign.name
             db.save(character)
-            flash('Joined campaign successfully!', 'success')
+            flash('Te has unido con éxito a la campaña', 'success')
         else:
-            flash('You do not have permission to join this campaign with this character.', 'danger')
+            flash('No tienes permisos para unirte con este personaje', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
     characters = Character.get_by_username(current_user.username)
@@ -127,7 +127,7 @@ def join_campaign(campaign_id):
 def leave_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
     character = Character.get_by_user_and_campaign(str(current_user._oid), campaign.name)  # Use _oid
@@ -135,9 +135,9 @@ def leave_campaign(campaign_id):
         character.campaign = None
         character.campaign_id = None
         db.save(character)
-        flash('Left campaign successfully!', 'success')
+        flash('Campaña abandonada con éxito', 'success')
     else:
-        flash('You are not part of this campaign.', 'danger')
+        flash('No formas parte de esta campaña', 'danger')
     
     return redirect(url_for('campaigns.list_campaigns'))
 
@@ -146,12 +146,12 @@ def leave_campaign(campaign_id):
 def play_campaign(campaign_id):
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        flash('Campaign not found.', 'danger')
+        flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
     master = User.get_by_id(campaign.master_id)
     if not master:
-        flash('Campaign master not found.', 'danger')
+        flash('Master de la campaña no encontrado', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
     characters = Character.get_all()

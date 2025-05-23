@@ -106,14 +106,14 @@
                         </li>
                         {% if current_user.role == 'master' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('campaigns.list_campaigns') }}">Campaigns</a>
+                            <a class="nav-link" href="{{ url_for('campaigns.list_campaigns') }}">Campañas</a>
                         </li>
                         {% elif current_user.role == 'player' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('characters.list_characters') }}">Characters</a>
+                            <a class="nav-link" href="{{ url_for('characters.list_characters') }}">Personajes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('campaigns.list_campaigns') }}">Campaigns</a>
+                            <a class="nav-link" href="{{ url_for('campaigns.list_campaigns') }}">Campañas</a>
                         </li>
                         {% endif %}
                         <li class="nav-item">
@@ -124,7 +124,7 @@
                             <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                            <a class="nav-link" href="{{ url_for('auth.register') }}">Registrarse</a>
                         </li>
                     {% endif %}
                 </ul>

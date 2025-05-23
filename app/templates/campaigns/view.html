@@ -26,28 +26,28 @@
                             <div class="text-muted mb-1">Status</div>
                             <div class="fw-bold">
                                 {% if campaign.is_public %}
-                                <span class="badge bg-success">Public</span>
+                                <span class="badge bg-success">Publica</span>
                                 {% else %}
-                                <span class="badge bg-secondary">Private</span>
+                                <span class="badge bg-secondary">Privada</span>
                                 {% endif %}
                             </div>
                         </div>
                         <div class="col-12">
-                            <div class="text-muted mb-1">Allowed Players</div>
+                            <div class="text-muted mb-1">Jugadores permitidos</div>
                             <div>
                                 {% if campaign.allowed_players %}
                                     {% for player in campaign.allowed_players %}
                                         <span class="badge bg-primary me-1">{{ player }}</span>
                                     {% endfor %}
                                 {% else %}
-                                    <span class="text-muted">No players allowed yet</span>
+                                    <span class="text-muted">Aun no tiene jugadores permitidos</span>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
 
                     <div class="text-center">
-                        <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Back to Campaigns</a>
+                        <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Volver a campañas</a>
                     </div>
                 </div>
             </div>

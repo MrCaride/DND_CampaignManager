@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Characters - Gestiones y Mazmorras{% endblock %}
+{% block title %}Personajes - Gestiones y Mazmorras{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <h2 class="text-center mb-4">Your Characters</h2>
+            <h2 class="text-center mb-4">Tus Personajes</h2>
             
             <div class="list-group mb-4">
                 {% for character in characters %}
@@ -15,7 +15,7 @@
                         <div>
                             <div class="d-flex align-items-center mb-1">
                                 <h3 class="h5 mb-0">{{ character.name }}</h3>
-                                <span class="badge bg-primary ms-2">Level {{ character.level }}</span>
+                                <span class="badge bg-primary ms-2">Nivel {{ character.level }}</span>
                             </div>
                             <p class="text-muted mb-0 small">
                                 <span class="me-2">{{ character.race }}</span>
@@ -25,28 +25,28 @@
                         </div>
                         <div class="btn-group" role="group">
                             <a href="{{ url_for('characters.view_character', character_id=character.id) }}" 
-                               class="btn btn-outline-info">View</a>
+                               class="btn btn-outline-info">Ver</a>
                             <a href="{{ url_for('characters.edit_character', character_id=character.id) }}" 
-                               class="btn btn-outline-warning">Edit</a>
+                               class="btn btn-outline-warning">Editar</a>
                             <form method="POST" action="{{ url_for('characters.delete_character', character_id=character.id) }}" 
                                   class="d-inline">
                                 <button type="submit" class="btn btn-outline-danger" 
-                                        onclick="return confirm('Are you sure you want to delete this character?');">Delete</button>
+                                        onclick="return confirm('¿Estás seguro de que quieres borrar el personaje?');">Borrar</button>
                             </form>
                         </div>
                     </div>
                 </div>
                 {% else %}
                 <div class="text-center p-4">
-                    <p class="text-muted mb-0">You haven't created any characters yet.</p>
-                    <p class="text-muted mb-0">Create your first character to join campaigns!</p>
+                    <p class="text-muted mb-0">Aun no has creado personajes.</p>
+                    <p class="text-muted mb-0">¡Crea tu primer personaje para poder unirte a campañas!</p>
                 </div>
                 {% endfor %}
             </div>
 
             <div class="d-flex justify-content-center gap-3">
-                <a href="{{ url_for('characters.create_character') }}" class="btn btn-success">Create Character</a>
-                <a href="{{ url_for('main.operations') }}" class="btn btn-secondary">Back</a>
+                <a href="{{ url_for('characters.create_character') }}" class="btn btn-success">Crear Personaje</a>
+                <a href="{{ url_for('main.operations') }}" class="btn btn-secondary">Volver</a>
             </div>
         </div>
     </div>

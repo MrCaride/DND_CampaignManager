@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Create Character - Gestiones y Mazmorras{% endblock %}
+{% block title %}Crear Personaje - Gestiones y Mazmorras{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -12,19 +12,19 @@
                     <form method="POST" action="{{ url_for('characters.create_character') }}">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="name" class="form-label">Name</label>
+                                <label for="name" class="form-label">Nombre</label>
                                 <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="race" class="form-label">Race</label>
+                                <label for="race" class="form-label">Raza</label>
                                 <input type="text" class="form-control" id="race" name="race" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="character_class" class="form-label">Class</label>
+                                <label for="character_class" class="form-label">Clase</label>
                                 <input type="text" class="form-control" id="character_class" name="character_class" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="level" class="form-label">Level</label>
+                                <label for="level" class="form-label">Nivel</label>
                                 <input type="number" class="form-control" id="level" name="level" min="1" required>
                             </div>
 
@@ -33,27 +33,27 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label for="strength" class="form-label">Strength</label>
+                                <label for="strength" class="form-label">Fuerza</label>
                                 <input type="number" class="form-control" id="strength" name="strength" min="1" max="20">
                             </div>
                             <div class="col-md-4">
-                                <label for="dexterity" class="form-label">Dexterity</label>
+                                <label for="dexterity" class="form-label">Destreza</label>
                                 <input type="number" class="form-control" id="dexterity" name="dexterity" min="1" max="20">
                             </div>
                             <div class="col-md-4">
-                                <label for="constitution" class="form-label">Constitution</label>
+                                <label for="constitution" class="form-label">Constitución</label>
                                 <input type="number" class="form-control" id="constitution" name="constitution" min="1" max="20">
                             </div>
                             <div class="col-md-4">
-                                <label for="intelligence" class="form-label">Intelligence</label>
+                                <label for="intelligence" class="form-label">Inteligencia</label>
                                 <input type="number" class="form-control" id="intelligence" name="intelligence" min="1" max="20">
                             </div>
                             <div class="col-md-4">
-                                <label for="wisdom" class="form-label">Wisdom</label>
+                                <label for="wisdom" class="form-label">Sabiduria</label>
                                 <input type="number" class="form-control" id="wisdom" name="wisdom" min="1" max="20">
                             </div>
                             <div class="col-md-4">
-                                <label for="charisma" class="form-label">Charisma</label>
+                                <label for="charisma" class="form-label">Carisma</label>
                                 <input type="number" class="form-control" id="charisma" name="charisma" min="1" max="20">
                             </div>
 
@@ -66,7 +66,7 @@
                                 <input type="number" class="form-control" id="armor_class" name="armor_class" min="1">
                             </div>
                             <div class="col-md-6 col-lg-3">
-                                <label for="initiative" class="form-label">Initiative</label>
+                                <label for="initiative" class="form-label">Iniciativa</label>
                                 <input type="number" class="form-control" id="initiative" name="initiative">
                             </div>
                             <div class="col-md-6 col-lg-3">
@@ -74,12 +74,12 @@
                                 <input type="number" class="form-control" id="hit_points" name="hit_points" min="1">
                             </div>
                             <div class="col-md-6 col-lg-3">
-                                <label for="speed" class="form-label">Speed</label>
+                                <label for="speed" class="form-label">Velocidad</label>
                                 <input type="number" class="form-control" id="speed" name="speed" min="0">
                             </div>
 
                             <div class="col-12 text-center mt-4">
-                                <button type="submit" class="btn btn-primary me-2">Create Character</button>
+                                <button type="submit" class="btn btn-primary me-2">Crear personaje</button>
                                 <a href="{{ url_for('characters.list_characters') }}" class="btn btn-secondary">Back</a>
                             </div>
                         </div>

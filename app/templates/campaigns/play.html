@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ campaign.name }} - Play - Gestiones y Mazmorras{% endblock %}
+{% block title %}{{ campaign.name }} - Jugar - Gestiones y Mazmorras{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('campaigns.list_campaigns') }}" class="text-decoration-none">Campaigns</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('campaigns.list_campaigns') }}" class="text-decoration-none">Campañas</a></li>
                     <li class="breadcrumb-item active">{{ campaign.name }}</li>
                 </ol>
             </nav>
@@ -19,26 +19,26 @@
                     
                     <div class="text-center mb-4">
                         {% if current_user.role == 'master' %}
-                        <a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="btn btn-primary">Manage Missions</a>
+                        <a href="{{ url_for('missions.manage_missions', campaign_id=campaign.id) }}" class="btn btn-primary">Gestionar misiones</a>
                         {% else %}
-                        <a href="{{ url_for('missions.view_missions', campaign_id=campaign.id) }}" class="btn btn-primary">View Missions</a>
+                        <a href="{{ url_for('missions.view_missions', campaign_id=campaign.id) }}" class="btn btn-primary">Ver misiones</a>
                         {% endif %}
                     </div>
 
-                    <h3 class="h5 mb-3">Characters in Campaign</h3>
+                    <h3 class="h5 mb-3">Personajes en la campaña</h3>
                     <div class="list-group">
                         {% for character in characters %}
                         <div class="list-group-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="fw-bold">{{ character.name }}</span>
-                                    <small class="text-muted ms-2">played by {{ character.user.username }}</small>
+                                    <small class="text-muted ms-2">jugado por {{ character.user.username }}</small>
                                 </div>
                             </div>
                         </div>
                         {% else %}
                         <div class="text-center text-muted p-3">
-                            <p class="mb-0">No characters in this campaign yet.</p>
+                            <p class="mb-0">Aun no hay personajes unidos a la campaña.</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -46,7 +46,7 @@
             </div>
 
             <div class="text-center">
-                <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Back to Campaigns</a>
+                <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-secondary">Volver a campañas</a>
             </div>
         </div>
     </div>
