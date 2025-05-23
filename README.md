@@ -67,17 +67,20 @@ dnd-campaign-manager
     - **character.py**: Modelo de personaje con atributos y estadísticas.
     - **campaign.py**: Modelo de campaña con gestión de permisos.
     - **mission.py**: Modelo de misión con sistema de votos.
-  - **routes**: Contiene las rutas de la aplicación.
+  - **routes**: Contiene las rutas específicas de la aplicación.
     - **auth.py**: Rutas de autenticación.
     - **characters.py**: Rutas para gestión de personajes.
     - **campaigns.py**: Rutas para gestión de campañas.
     - **missions.py**: Rutas para gestión de misiones.
-    - **main.py**: Rutas principales de la aplicación.
+    - **main.py**: Rutas principales.
   - **templates**: Contiene las plantillas HTML.
+    - **base.html**: Plantilla base con la estructura común.
+    - **index.html**: Página principal.
+    - **operations_master.html**: Operaciones para másters.
+    - **operations_player.html**: Operaciones para jugadores.
   - **static**: Contiene archivos estáticos como CSS.
 - **app.py**: Punto de entrada de la aplicación.
 - **create_users.py**: Script para crear datos de prueba.
-- **migrate.py**: Manejo de migraciones de base de datos.
 - **requirements.txt**: Dependencias del proyecto.
 - **uninstall_all_packages.py**: Script para desinstalar todos los paquetes de Python.
 - **netlify.toml**: Configuración para despliegue en Netlify.
@@ -92,10 +95,17 @@ dnd-campaign-manager
 pip install -r requirements.txt
 ```
 4. Inicia Redis
-5. Ejecuta la aplicación:
-```bash
-python app.py
-```
+5. Ejecuta la aplicación usando uno de estos métodos:
+
+   Opción 1 - Usando Flask:
+   ```bash
+   python -m flask run
+   ```
+
+   Opción 2 - Usando el script de PowerShell:
+   ```powershell
+   .\start_app.ps1
+   ```
 
 ### Datos de Prueba
 Para poblar la base de datos con datos de prueba, ejecuta:
