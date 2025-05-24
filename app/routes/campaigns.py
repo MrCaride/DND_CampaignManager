@@ -13,20 +13,16 @@ campaigns_bp = Blueprint('campaigns', __name__)
 def list_campaigns():
     if current_user.role == 'master':
         campaigns = list(db.filter(Campaign, lambda c: str(c.master_id) == str(current_user._oid)))
-        print(f"Master {current_user.username} campaigns: {[campaign.name for campaign in campaigns]}")
     else:
         all_campaigns = Campaign.get_all()
         campaigns = [campaign for campaign in all_campaigns 
                     if campaign.is_public or current_user.username in campaign.allowed_players]
-        print(f"Player {current_user.username} campaigns: {[campaign.name for campaign in campaigns]}")
 
     user_characters = Character.get_by_username(current_user.username)
     joined_campaigns = {character.campaign: character for character in user_characters if character.campaign}
-    print(f"User {current_user.username} joined campaigns: {joined_campaigns}")
 
     joined_campaigns = {campaign_name: character for campaign_name, character in joined_campaigns.items() 
                        if campaign_name in [campaign.name for campaign in campaigns]}
-    print(f"Filtered joined campaigns: {joined_campaigns}")
 
     return render_template('campaigns/list.html', campaigns=campaigns, joined_campaigns=joined_campaigns)
 
@@ -74,9 +70,8 @@ def edit_campaign(campaign_id):
         campaign.is_public = 'is_public' in request.form
         # Obtener la lista de allowed_players
         campaign.allowed_players = request.form.getlist('allowed_players')
-        print(f"Updating campaign {campaign.name} with allowed players: {campaign.allowed_players}")
         db.save(campaign)
-        flash('Campaña actualziada con exito', 'success')
+        flash('Campaña actualizada con exito', 'success')
         return redirect(url_for('campaigns.list_campaigns'))
     
     players = [user for user in User.get_all() if user.role != 'master']
@@ -90,8 +85,17 @@ def delete_campaign(campaign_id):
         flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
     
+    # First, remove campaign reference from all characters in the campaign
+    characters = Character.get_all()
+    for character in characters:
+        if character.campaign == campaign.name:
+            character.campaign = None
+            character.campaign_id = None
+            db.save(character)
+    
+    # Then delete the campaign
     if hasattr(campaign, '_id') and campaign._id:
-        db.delete(campaign._id)  # Pass the OID instead of the object
+        db.delete(campaign._id)
         flash('Campaña borrada con exito', 'success')
     else:
         flash('Campaña no tiene un ID válido', 'danger')
@@ -156,7 +160,6 @@ def play_campaign(campaign_id):
     
     characters = Character.get_all()
     campaign_characters = [character for character in characters if character.campaign == campaign.name]
-    print(f"Characters in this campaign: {[(char.name, char.user_username) for char in campaign_characters]}")
 
     missions = Mission.get_by_campaign(campaign.name)
     if current_user.role == 'master':

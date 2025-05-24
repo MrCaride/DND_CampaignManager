@@ -66,7 +66,6 @@ class Character:
                       armor_class, initiative, hit_points, speed, campaign)
         oid = db.save(character)
         character._id = oid
-        print(f"Created character: {character.name} for user: {user_username} with ID: {character.id}")
         
         # Volver a guardar para asegurar que el _id se persiste
         db.save(character)
@@ -87,7 +86,6 @@ class Character:
 
     @classmethod
     def get_by_username(cls, user_username):
-        print(f"Getting characters for username: {user_username}")
         characters = list(db.filter(cls, lambda char: char.user_username == user_username))
         # Asegurar que todos los personajes tienen su ID
         updated_characters = []
@@ -97,7 +95,6 @@ class Character:
                 character._id = oid
                 db.save(character)
             updated_characters.append(character)
-        print(f"Found characters: {[(char.name, char.user_username) for char in updated_characters]}")
         return updated_characters
 
     @classmethod

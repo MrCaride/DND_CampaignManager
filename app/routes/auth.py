@@ -70,7 +70,5 @@ def register():
 @auth_bp.route('/logout')
 @login_required
 def logout():
-    if current_user.is_authenticated:
-        print(f"User {current_user.username} with ID {current_user.get_id()} logged out")
     logout_user()
     return redirect(url_for('auth.login'))

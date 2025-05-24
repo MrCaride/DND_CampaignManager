@@ -16,7 +16,6 @@ def profile():
 @main.route('/operations')
 @login_required
 def operations():
-    print(f"Redirecting user {current_user.username} with role {current_user.role}")
     if current_user.role == 'master':
         return redirect(url_for('main.operations_master'))
     else:

@@ -8,9 +8,7 @@ characters_bp = Blueprint('characters', __name__)
 @characters_bp.route('/characters', methods=['GET'])
 @login_required
 def list_characters():
-    print(f"Fetching characters for user: {current_user.username}")
     characters = Character.get_by_username(current_user.username)
-    print(f"Characters passed to template: {[(char.name, char.user_username) for char in characters]}")
     return render_template('characters/list.html', characters=characters)
 
 @characters_bp.route('/characters/create', methods=['GET', 'POST'])
@@ -22,7 +20,7 @@ def create_character():
             race=request.form.get('race'),
             character_class=request.form.get('character_class'),
             level=request.form.get('level'),
-            user_id=str(current_user._oid),  # Use _oid instead of id
+            user_id=str(current_user._oid),
             user_username=current_user.username,
             strength=request.form.get('strength'),
             dexterity=request.form.get('dexterity'),
@@ -35,7 +33,6 @@ def create_character():
             hit_points=request.form.get('hit_points'),
             speed=request.form.get('speed')
         )
-        print(f"Created character: {character.name} for user: {current_user.username}")
         return redirect(url_for('characters.list_characters'))
     return render_template('characters/create.html')
 

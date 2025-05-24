@@ -27,9 +27,7 @@ class Campaign:
             return None
             
         try:
-            print(f"Searching for campaign with ID: {campaign_id}")
             all_campaigns = list(db.load_all(cls))
-            print(f"Found {len(all_campaigns)} total campaigns")
             
             # Si el ID es numérico, buscamos la campaña correspondiente
             if isinstance(campaign_id, (int, str)):
@@ -40,20 +38,16 @@ class Campaign:
                     if hasattr(campaign, '_id') and campaign._id:
                         campaign_oid = str(campaign._id)
                         if campaign_oid.endswith(f"@{campaign_id_str}"):
-                            print(f"Found campaign by numeric ID: {campaign.name}")
                             return campaign
                             
                 # Intentar encontrar por el OID completo
                 for campaign in all_campaigns:
                     if hasattr(campaign, '_id') and campaign._id and str(campaign._id) == campaign_id_str:
-                        print(f"Found campaign by full OID: {campaign.name}")
                         return campaign
                         
-            print(f"No campaign found with ID: {campaign_id}")
             return None
             
         except Exception as e:
-            print(f"Error in get_by_id: {str(e)}")
             return None
 
     @classmethod
@@ -61,7 +55,6 @@ class Campaign:
         campaign = cls(name, is_public, master_id, allowed_players)
         oid = db.save(campaign)
         campaign._id = oid
-        print(f"Created campaign: {campaign.name} with ID: {campaign._id}")
         db.save(campaign)
         return campaign
 
@@ -89,5 +82,4 @@ class Campaign:
                 db.save(campaign)
             return campaign
         except Exception as e:
-            print(f"Error getting campaign by name: {str(e)}")
             return None

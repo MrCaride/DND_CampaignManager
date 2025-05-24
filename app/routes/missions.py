@@ -9,16 +9,12 @@ missions_bp = Blueprint('missions', __name__)
 @missions_bp.route('/missions/<campaign_id>/view')
 @login_required
 def view_missions(campaign_id):
-    print(f"Viewing missions for campaign ID: {campaign_id}")
     campaign = Campaign.get_by_id(campaign_id)
     if not campaign:
-        print(f"Campaign not found with ID: {campaign_id}")
         flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
-    print(f"Found campaign: {campaign.name}")
     missions = Mission.get_by_campaign(campaign.name)
-    print(f"Found missions: {[mission.name for mission in missions] if missions else 'No missions'}")
     return render_template('missions/view.html', campaign=campaign, missions=missions)
 
 @missions_bp.route('/missions/<campaign_id>/manage', methods=['GET', 'POST'])
@@ -103,58 +99,46 @@ def delete_mission(campaign_id, mission_id):
 @missions_bp.route('/vote/<mission_id>', methods=['POST'])
 @login_required
 def vote_mission(mission_id):
-    print(f"Attempting to vote for mission with ID: {mission_id}")
     if not mission_id:
-        print("No mission_id provided")
         flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     mission = Mission.get_by_id(mission_id)
     
     if not mission:
-        print(f"Mission not found with ID: {mission_id}")
         flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
-    print(f"Found mission: {mission.name}")
     mission.vote(current_user)
     
     campaign = Campaign.get_by_name(mission.campaign_name)
     if not campaign:
-        print(f"Campaign not found for mission: {mission.name}")
         flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
         
-    print(f"Redirecting to campaign: {campaign.name}")
     flash('Votación exitosa', 'success')
     return redirect(url_for('missions.view_missions', campaign_id=campaign._id))
 
 @missions_bp.route('/unvote/<mission_id>', methods=['POST'])
 @login_required
 def unvote_mission(mission_id):
-    print(f"Attempting to unvote mission with ID: {mission_id}")
     if not mission_id:
-        print("No mission_id provided")
         flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
     mission = Mission.get_by_id(mission_id)
     
     if not mission:
-        print(f"Mission not found with ID: {mission_id}")
         flash('Misión no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
 
-    print(f"Found mission: {mission.name}")
     mission.unvote(current_user)
     
     campaign = Campaign.get_by_name(mission.campaign_name)
     if not campaign:
-        print(f"Campaign not found for mission: {mission.name}")
         flash('Campaña no encontrada', 'danger')
         return redirect(url_for('campaigns.list_campaigns'))
         
-    print(f"Redirecting to campaign: {campaign.name}")
     flash('Voto eliminado con éxito', 'success')
     return redirect(url_for('missions.view_missions', campaign_id=campaign._id))
 

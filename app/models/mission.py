@@ -35,12 +35,9 @@ class Mission:
     @classmethod
     def get_by_id(cls, mission_id):
         if not mission_id:
-            print("No mission_id provided")
             return None
         try:
-            print(f"Searching for mission with ID: {mission_id}")
             all_missions = list(db.load_all(cls))
-            print(f"Found {len(all_missions)} total missions")
 
             # Convert mission_id to string for comparison
             mission_id_str = str(mission_id)
@@ -48,36 +45,30 @@ class Mission:
             # First try direct ID match
             for mission in all_missions:
                 if hasattr(mission, '_id') and mission._id and str(mission._id) == mission_id_str:
-                    print(f"Found mission by direct ID match: {mission.name}")
                     return mission
 
             # Then try numeric ID match
             if mission_id_str.isdigit():
                 for mission in all_missions:
                     if hasattr(mission, '_id') and mission._id and str(mission._id).endswith(f"@{mission_id_str}"):
-                        print(f"Found mission by numeric ID: {mission.name}")
                         return mission
-
+                        
             # Finally try OID format match
             if '@' in mission_id_str:
                 oid_num = mission_id_str.split('@')[-1]
                 for mission in all_missions:
                     if hasattr(mission, '_id') and mission._id and str(mission._id).endswith(f"@{oid_num}"):
-                        print(f"Found mission by OID format: {mission.name}")
                         return mission
 
-            print(f"No mission found with ID: {mission_id}")
             return None
         except Exception as e:
-            print(f"Error in get_by_id: {str(e)}")
             return None
-
+            
     @classmethod
     def create(cls, name, description, campaign_name=None, rewards=0):
         mission = cls(name, description, campaign_name, rewards)
         oid = db.save(mission)
         mission._id = oid
-        print(f"Created mission: {mission.name} for campaign: {campaign_name} with ID: {mission.id}")
         
         # Volver a guardar para asegurar que el _id se persiste
         db.save(mission)
